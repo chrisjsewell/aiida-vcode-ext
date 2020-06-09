@@ -33,7 +33,7 @@
                 {
                     "id": "aiida-explorer",
                     "title": "AiiDA Explorer",
-                    "icon": "resources/aiida-icon2.svg",
+                    "icon": "resources/aiida-icon2.svg"
                 }
             ]
         },
