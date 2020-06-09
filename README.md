@@ -1,2 +1,3 @@
-# aiida-vcode-ext
-A VSCode Extension for visualising AiiDA repositories
+# AiiDA VSCode Extension [IN DEVELOPMENT]
+
+A VSCode Extension for working with and exploring AiiDA repositories
