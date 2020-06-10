@@ -43,6 +43,10 @@
                 {
                     "id": "aiidaComputerCodes",
                     "name": "Codes"
+                },
+                {
+                    "id": "aiidaGroupNodes",
+                    "name": "Groups"
                 }
             ]
         },
@@ -50,6 +54,10 @@
             {
                 "view": "aiidaComputerCodes",
                 "contents": "No Computers found, check Postgres Database connection?"
+            },
+            {
+                "view": "aiidaGroupNodes",
+                "contents": "No Groups found, check Postgres Database connection?"
             }
         ],
         "menus": {
@@ -57,6 +65,11 @@
                 {
                     "command": "aiidaComputerCodes.refreshEntry",
                     "when": "view == aiidaComputerCodes",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aiidaGroupNodes.refreshEntry",
+                    "when": "view == aiidaGroupNodes",
                     "group": "navigation"
                 }
             ],
@@ -68,6 +81,10 @@
                 {
                     "command": "aiida.inspectComputer",
                     "when": "viewItem == computer"
+                },
+                {
+                    "command": "aiida.inspectGroup",
+                    "when": "viewItem == group"
                 }
             ]
         },
@@ -81,11 +98,23 @@
                 }
             },
             {
+                "command": "aiidaGroupNodes.refreshEntry",
+                "title": "AiiDA: Refresh Groups",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
                 "command": "aiida.inspectComputer",
                 "title": "Inspect"
             },
             {
                 "command": "aiida.inspectNode",
+                "title": "Inspect"
+            },
+            {
+                "command": "aiida.inspectGroup",
                 "title": "Inspect"
             }
         ],

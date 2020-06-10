@@ -13,6 +13,13 @@ export interface Computer {
     description: string,
     codes: Node[]
 }
+export interface Group {
+    id: number,
+    label: string,
+    description: string,
+    typeString: string,
+    nodes: Node[]
+}
 
 /**
  * Add timeout for DB connection,
@@ -65,24 +72,6 @@ export class Database {
         return output
     }
 
-    async queryComputers(): Promise<Computer[] | null> {
-        return await this.runQuery(async (client) => {
-            const computers: Computer[] = []
-            const resultIterator = client.query(
-                'SELECT id, name, description from db_dbcomputer LIMIT 1000'
-            )
-            for await (const row of resultIterator) {
-                computers.push({
-                    id: row.get('id') as number,
-                    name: row.get('name') as string,
-                    description: row.get('description') as string,
-                    codes: []
-                })
-            }
-            return computers
-        })
-    }
-
     async queryComputer(pk: number): Promise<object> {
         return await this.runQuery(async (client) => {
             const resultIterator = client.query(
@@ -103,13 +92,23 @@ export class Database {
         })
     }
 
-    async queryComputerCodes(): Promise<{[key: number]: Computer} > {
+    async queryGroup(pk: number): Promise<object> {
+        return await this.runQuery(async (client) => {
+            const resultIterator = client.query(
+                'SELECT * from db_dbgroup where db_dbgroup.id=$1', [pk]
+            )
+            const row = await resultIterator.one()
+            return lodash.zipObject(row.names, row.data)
+        })
+    }
+
+    async queryComputerCodes(maxRecords: number = 10000): Promise<{[key: number]: Computer} > {
         return await this.runQuery(async (client) => {
             const computers: {[key: number]: Computer} = {}
             const resultIterator = client.query(
                 'SELECT c.id, c.name, c.description, n.id, n.label, n.description, n.node_type from db_dbcomputer as c ' +
                 'LEFT JOIN db_dbnode as n ON c.id = n.dbcomputer_id ' +
-                "WHERE n.node_type='data.code.Code.' ORDER BY c.id LIMIT 1000"
+                "WHERE n.node_type='data.code.Code.' ORDER BY c.id LIMIT $1", [maxRecords]
             )
             for await (const row of resultIterator) {
                 const id = row.data[0] as number
@@ -131,5 +130,37 @@ export class Database {
             return computers
         })
     }
+
+    async queryGroupNodes(maxRecords: number = 10000): Promise<{[key: number]: Group} > {
+        return await this.runQuery(async (client) => {
+            const groups: {[key: number]: Group} = {}
+            const resultIterator = client.query(
+                'SELECT g.id, g.label, g.description, g.type_string, n.id, n.label, n.description, n.node_type from db_dbgroup_dbnodes as gn ' +
+                'LEFT JOIN db_dbgroup as g ON g.id = gn.dbgroup_id ' +
+                'LEFT JOIN db_dbnode as n ON n.id = gn.dbnode_id ' +
+                'ORDER BY g.type_string, g.id LIMIT $1', [maxRecords]
+            )
+            for await (const row of resultIterator) {
+                const id = row.data[0] as number
+                if (!(id in groups)) {
+                    groups[id] = {
+                        id: row.data[0] as number,
+                        label: row.data[1] as string,
+                        description: row.data[2] as string,
+                        typeString: row.data[3] as string,
+                        nodes: []
+                    }
+                }
+                groups[id].nodes.push({
+                    id: row.data[4] as number,
+                    label: row.data[5] as string,
+                    description: row.data[6] as string,
+                    nodeType: row.data[7] as string
+                })
+            }
+            return groups
+        })
+    }
+
 }
 

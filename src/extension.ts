@@ -8,7 +8,8 @@ import * as crypto from 'crypto'
 import * as vscode from 'vscode'
 
 import { ComputerTreeProvider } from './computer_view'
-import { inspectComputer, inspectNode } from './inspect'
+import { GroupTreeProvider } from './group_view'
+import { inspectComputer, inspectNode, inspectGroup } from './inspect'
 import { Database } from './postgres'
 import { Configuration } from 'ts-postgres'
 
@@ -31,8 +32,10 @@ export function activate(ctx: vscode.ExtensionContext): void {
     const db = Database.getInstance(configOptions.get('connection'), configOptions.get('connection.timeout_ms'))
 
     // register views
-    const treeDataProvider = ComputerTreeProvider.getInstance()
-    vscode.window.registerTreeDataProvider('aiidaComputerCodes', treeDataProvider)
+    const ComputerTreeInstance = ComputerTreeProvider.getInstance()
+    vscode.window.registerTreeDataProvider('aiidaComputerCodes', ComputerTreeInstance)
+    const GroupTreeInstance = GroupTreeProvider.getInstance()
+    vscode.window.registerTreeDataProvider('aiidaGroupNodes', GroupTreeInstance)
 
     // register text document provider for data inspection
     contentProvider = new ReadOnlyContentProvider()
@@ -40,10 +43,14 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
     // register commands
     vscode.commands.registerCommand('aiidaComputerCodes.refreshEntry', () =>
-        treeDataProvider.refresh()
+        ComputerTreeInstance.refresh()
+    )
+    vscode.commands.registerCommand('aiidaGroupNodes.refreshEntry', () =>
+        GroupTreeInstance.refresh()
     )
     vscode.commands.registerCommand('aiida.inspectComputer', inspectComputer)
     vscode.commands.registerCommand('aiida.inspectNode', inspectNode)
+    vscode.commands.registerCommand('aiida.inspectGroup', inspectGroup)
 
     // register configuration change callback
     ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(
@@ -54,7 +61,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
                 const timeout = configOptions.get('connection.timeout_ms')
                 db.config = config ? config as Configuration : {}
                 db.timeoutMs = timeout ? timeout as number : 1000
-                treeDataProvider.refresh()
+                ComputerTreeInstance.refresh()
+                GroupTreeInstance.refresh()
             }
         }))
 }

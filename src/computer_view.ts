@@ -1,9 +1,9 @@
 'use strict'
 import * as vscode from 'vscode'
-import * as path from 'path'
 import * as lodash from 'lodash'
 
 import * as postgres from './postgres'
+import { ComputerTreeItem, NodeTreeItem } from './tree_items'
 
 
 export class ComputerTreeProvider implements vscode.TreeDataProvider<ComputerTreeItem> {
@@ -15,14 +15,14 @@ export class ComputerTreeProvider implements vscode.TreeDataProvider<ComputerTre
             ComputerTreeProvider.instance = new ComputerTreeProvider()
         }
         return ComputerTreeProvider.instance
-      }
+    }
     private constructor() {
         this.onDidChangeTreeData = this._onDidChangeTreeData.event
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<ComputerTreeItem | undefined> = new vscode.EventEmitter<ComputerTreeItem | undefined>()
     readonly onDidChangeTreeData: vscode.Event<ComputerTreeItem | undefined>
-    private computerCodes: {[key: number]: postgres.Computer} = {}
+    private computerCodes: { [key: number]: postgres.Computer } = {}
 
     refresh() {
         this._onDidChangeTreeData.fire(undefined)
@@ -44,67 +44,10 @@ export class ComputerTreeProvider implements vscode.TreeDataProvider<ComputerTre
         }
         if (element instanceof ComputerTreeItem) {
             if (element.pk in this.computerCodes) {
-                return this.computerCodes[element.pk].codes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, 'terminal') })
+                return this.computerCodes[element.pk].codes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, value.nodeType, 'terminal') })
             }
             return []
         }
         return []
-    }
-}
-
-export class ComputerTreeItem extends vscode.TreeItem {
-    constructor(
-        public readonly label: string,
-        public readonly pk: number,
-        public readonly descript: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Expanded
-    ) {
-        super(label, collapsibleState)
-        this.iconPath = {
-            light: path.join(__filename, '..', '..', 'resources', 'light', 'computer.svg'),
-            dark: path.join(__filename, '..', '..', 'resources', 'dark', 'computer.svg')
-        }
-    }
-
-    get tooltip(): string {
-        return `${this.descript}`
-    }
-
-    get description(): string {
-        return `PK: ${this.pk}`
-    }
-
-    get contextValue(): string {
-        return 'computer'
-    }
-
-}
-
-
-export class NodeTreeItem extends vscode.TreeItem {
-    constructor(
-        public readonly label: string,
-        public readonly pk: number,
-        public readonly descript: string,
-        public readonly icon: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
-    ) {
-        super(label, collapsibleState)
-        this.iconPath = {
-            light: path.join(__filename, '..', '..', 'resources', 'light', `${icon}.svg`),
-            dark: path.join(__filename, '..', '..', 'resources', 'dark', `${icon}.svg`)
-        }
-    }
-
-    get tooltip(): string {
-        return `${this.descript}`
-    }
-
-    get description(): string {
-        return `PK: ${this.pk}`
-    }
-
-    get contextValue(): string {
-        return 'node'
     }
 }
