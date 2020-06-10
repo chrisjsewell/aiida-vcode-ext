@@ -21,7 +21,8 @@
     ],
     "license": "MIT",
     "engines": {
-        "vscode": "^1.41.0"
+        "vscode": "^1.41.0",
+        "node": ">=10"
     },
     "categories": [
         "Other"
@@ -40,53 +41,114 @@
         "views": {
             "aiida-explorer": [
                 {
-                    "id": "aiidaRepository",
-                    "name": "Repository"
+                    "id": "aiidaComputerCodes",
+                    "name": "Codes"
                 }
             ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "aiidaComputerCodes",
+                "contents": "No Computers found, check Postgres Database connection?"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "aiidaComputerCodes.refreshEntry",
+                    "when": "view == aiidaComputerCodes",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "aiida.inspectNode",
+                    "when": "viewItem == node"
+                },
+                {
+                    "command": "aiida.inspectComputer",
+                    "when": "viewItem == computer"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "aiidaComputerCodes.refreshEntry",
+                "title": "AiiDA: Refresh Codes",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "aiida.inspectComputer",
+                "title": "Inspect"
+            },
+            {
+                "command": "aiida.inspectNode",
+                "title": "Inspect"
+            }
+        ],
+        "configuration": {
+            "title": "AiiDA-Repository Configuration",
+            "properties": {
+                "aiida.connection": {
+                    "description": "parameters for connecting to the postgres database",
+                    "type": "object",
+                    "required": [
+                        "host",
+                        "port",
+                        "user",
+                        "database"
+                    ],
+                    "properties": {
+                        "host": {
+                            "type": "string",
+                            "default": "localhost"
+                        },
+                        "port": {
+                            "type": "number",
+                            "default": 5432
+                        },
+                        "user": {
+                            "type": "string",
+                            "default": "aiida"
+                        },
+                        "database": {
+                            "type": "string",
+                            "default": "aiida_db"
+                        },
+                        "password": {
+                            "type": "string",
+                            "default": "password"
+                        },
+                        "timeout_ms": {
+                            "type": "number",
+                            "default": 1000,
+                            "description": "timeout connecting after x milliseconds"
+                        }
+                    },
+                    "default": {
+                        "host": "localhost",
+                        "port": 5432,
+                        "user": "aiida",
+                        "database": "aiida_db",
+                        "password": "password",
+                        "timeout_ms": 1000
+                    }
+                }
+            }
         },
         "snippets": [
             {
                 "language": "python",
                 "path": "snippets/aiida_core.json"
             }
-        ],
-        "commands": [
-            {
-                "command": "aiidaRepository.refreshEntry",
-                "title": "AiiDA: Refresh",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
-            }
-        ],
-        "menus": {
-            "view/title": [
-                {
-                    "command": "aiidaRepository.refreshEntry",
-                    "when": "view == aiidaRepository",
-                    "group": "navigation"
-                }
-            ]
-        },
-        "configuration": {
-            "title": "AiiDA-Repository Configuration",
-            "properties": {
-                "aiida.config.path": {
-                    "description": "Path to the AiiDA configuration folder",
-                    "type": [
-                        "string",
-                        "null"
-                    ],
-                    "default": null
-                }
-            }
-        }
+        ]
     },
     "main": "out/extension",
     "activationEvents": [
-        "onView:aiidaRepository"
+        "onView:aiidaComputerCodes"
     ],
     "devDependencies": {
         "@types/glob": "^7.1.1",
@@ -107,7 +169,11 @@
         "vscode-test": "^1.3.0"
     },
     "dependencies": {
-        "ts-postgres": "^1.1.3"
+        "@types/lodash": "^4.14.155",
+        "esnext": "^3.3.1",
+        "lodash": "^4.17.15",
+        "ts-postgres": "^1.1.3",
+        "vscode-nls": "^4.1.2"
     },
     "scripts": {
         "lint": "eslint --cache --ext .ts,.js .",
