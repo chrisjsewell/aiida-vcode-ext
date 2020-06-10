@@ -21,6 +21,13 @@ export interface Group {
     nodes: Node[]
 }
 
+export interface Setting {
+    id: number,
+    key: string,
+    description: string,
+    value: any
+}
+
 /**
  * Add timeout for DB connection,
  * see: https://spin.atomicobject.com/2020/01/16/timeout-promises-nodejs/
@@ -36,6 +43,7 @@ export class Database {
 
     public config: Configuration = {}
     public timeoutMs: number = 1000
+    public queryMaxRecords: number = 10000
 
     // here we make the database a singleton, so we can refer to it elsewhere
     private static instance: Database
@@ -44,7 +52,7 @@ export class Database {
             Database.instance = new Database(config, timeoutMs)
         }
         return Database.instance
-      }
+    }
 
     private constructor(config: Configuration | undefined = undefined, timeoutMs: number | undefined = undefined) {
         if (config !== undefined) {
@@ -102,13 +110,31 @@ export class Database {
         })
     }
 
-    async queryComputerCodes(maxRecords: number = 10000): Promise<{[key: number]: Computer} > {
+    async querySettings(): Promise<Setting[]> {
         return await this.runQuery(async (client) => {
-            const computers: {[key: number]: Computer} = {}
+            const resultIterator = client.query(
+                'SELECT * from db_dbsetting'
+            )
+            const settings: Setting[] = []
+            for await (const row of resultIterator) {
+                settings.push({
+                    id: row.get('id') as number,
+                    key: row.get('key') as string,
+                    description: row.get('description') as string,
+                    value: row.get('val')
+                })
+            }
+            return settings
+        })
+    }
+
+    async queryComputerCodes(maxRecords: number | null = null): Promise<{ [key: number]: Computer }> {
+        return await this.runQuery(async (client) => {
+            const computers: { [key: number]: Computer } = {}
             const resultIterator = client.query(
                 'SELECT c.id, c.name, c.description, n.id, n.label, n.description, n.node_type from db_dbcomputer as c ' +
                 'LEFT JOIN db_dbnode as n ON c.id = n.dbcomputer_id ' +
-                "WHERE n.node_type='data.code.Code.' ORDER BY c.id LIMIT $1", [maxRecords]
+                "WHERE n.node_type='data.code.Code.' ORDER BY c.id LIMIT $1", [maxRecords ? maxRecords : this.queryMaxRecords]
             )
             for await (const row of resultIterator) {
                 const id = row.data[0] as number
@@ -131,14 +157,14 @@ export class Database {
         })
     }
 
-    async queryGroupNodes(maxRecords: number = 10000): Promise<{[key: number]: Group} > {
+    async queryGroupNodes(maxRecords: number | null = null): Promise<{ [key: number]: Group }> {
         return await this.runQuery(async (client) => {
-            const groups: {[key: number]: Group} = {}
+            const groups: { [key: number]: Group } = {}
             const resultIterator = client.query(
                 'SELECT g.id, g.label, g.description, g.type_string, n.id, n.label, n.description, n.node_type from db_dbgroup_dbnodes as gn ' +
                 'LEFT JOIN db_dbgroup as g ON g.id = gn.dbgroup_id ' +
                 'LEFT JOIN db_dbnode as n ON n.id = gn.dbnode_id ' +
-                'ORDER BY g.type_string, g.id LIMIT $1', [maxRecords]
+                'ORDER BY g.type_string, g.id LIMIT $1', [maxRecords ? maxRecords : this.queryMaxRecords]
             )
             for await (const row of resultIterator) {
                 const id = row.data[0] as number

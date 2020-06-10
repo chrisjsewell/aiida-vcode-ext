@@ -47,6 +47,10 @@
                 {
                     "id": "aiidaGroupNodes",
                     "name": "Groups"
+                },
+                {
+                    "id": "aiidaMisc",
+                    "name": "Miscellaneous"
                 }
             ]
         },
@@ -70,6 +74,11 @@
                 {
                     "command": "aiidaGroupNodes.refreshEntry",
                     "when": "view == aiidaGroupNodes",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aiidaMisc.refreshEntry",
+                    "when": "view == aiidaMisc",
                     "group": "navigation"
                 }
             ],
@@ -100,6 +109,14 @@
             {
                 "command": "aiidaGroupNodes.refreshEntry",
                 "title": "AiiDA: Refresh Groups",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "aiidaMisc.refreshEntry",
+                "title": "AiiDA: Refresh Settings",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -165,6 +182,11 @@
                         "password": "password",
                         "timeout_ms": 1000
                     }
+                },
+                "aiida.query_max": {
+                    "description": "maximum records to return from a single query",
+                    "type": "number",
+                    "default": 10000
                 }
             }
         },

@@ -9,6 +9,7 @@ import * as vscode from 'vscode'
 
 import { ComputerTreeProvider } from './computer_view'
 import { GroupTreeProvider } from './group_view'
+import { MiscTreeProvider } from './misc_view'
 import { inspectComputer, inspectNode, inspectGroup } from './inspect'
 import { Database } from './postgres'
 import { Configuration } from 'ts-postgres'
@@ -36,6 +37,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider('aiidaComputerCodes', ComputerTreeInstance)
     const GroupTreeInstance = GroupTreeProvider.getInstance()
     vscode.window.registerTreeDataProvider('aiidaGroupNodes', GroupTreeInstance)
+    const MiscTreeInstance = MiscTreeProvider.getInstance()
+    vscode.window.registerTreeDataProvider('aiidaMisc', MiscTreeInstance)
 
     // register text document provider for data inspection
     contentProvider = new ReadOnlyContentProvider()
@@ -47,6 +50,9 @@ export function activate(ctx: vscode.ExtensionContext): void {
     )
     vscode.commands.registerCommand('aiidaGroupNodes.refreshEntry', () =>
         GroupTreeInstance.refresh()
+    )
+    vscode.commands.registerCommand('aiidaMisc.refreshEntry', () =>
+    MiscTreeInstance.refresh()
     )
     vscode.commands.registerCommand('aiida.inspectComputer', inspectComputer)
     vscode.commands.registerCommand('aiida.inspectNode', inspectNode)
@@ -63,6 +69,12 @@ export function activate(ctx: vscode.ExtensionContext): void {
                 db.timeoutMs = timeout ? timeout as number : 1000
                 ComputerTreeInstance.refresh()
                 GroupTreeInstance.refresh()
+                MiscTreeInstance.refresh()
+            }
+            if (e.affectsConfiguration('aiida.query_max')) {
+                configOptions = vscode.workspace.getConfiguration('aiida')
+                const queryMax = configOptions.get('query_max')
+                db.queryMaxRecords = queryMax ? queryMax as number : 10000
             }
         }))
 }
@@ -72,6 +84,7 @@ export function deactivate() {
 }
 
 
+// see https://code.visualstudio.com/api/extension-guides/virtual-documents
 class ReadOnlyContentProvider implements vscode.TextDocumentContentProvider {
     private _onDidChangeEmitter: vscode.EventEmitter<vscode.Uri> = new vscode.EventEmitter<vscode.Uri>()
     private _contentMap: Map<string, string> = new Map<string, string>()
