@@ -3,7 +3,7 @@ import * as vscode from 'vscode'
 import * as lodash from 'lodash'
 
 import * as postgres from './postgres'
-import { GroupTreeItem, NodeTreeItem } from './tree_items'
+import { iconPath, GroupTreeItem, NodeTreeItem, AiidaTreeItem } from './tree_items'
 
 
 export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem> {
@@ -32,22 +32,38 @@ export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem>
         return element
     }
 
-    async getChildren(element?: GroupTreeItem | NodeTreeItem): Promise<GroupTreeItem[] | NodeTreeItem[]> {
+    async getChildren(element?: AiidaTreeItem): Promise<AiidaTreeItem[]> {
+
         if (!element) {
             const db = postgres.Database.getInstance()
             this.groupNodes = await db.queryGroupNodes()
+            if (!this.groupNodes) {
+                return []
+            }
+            const topLevel: AiidaTreeItem[] = []
+            for (const {typeString} of lodash.uniqBy(lodash.values(this.groupNodes), 'typeString')) {
+                const groupTypeItem = new AiidaTreeItem(typeString, vscode.TreeItemCollapsibleState.Expanded)
+                groupTypeItem.iconPath = iconPath('folder')
+                topLevel.push(groupTypeItem)
+            }
+            return topLevel
+        }
+
+        if (element instanceof GroupTreeItem) {
+            if (element.pk in this.groupNodes) {
+                return this.groupNodes[element.pk].nodes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, value.nodeType) })
+            }
+            return []
+        }
+
+        if (element instanceof AiidaTreeItem) {
             if (this.groupNodes) {
-                return lodash.values(this.groupNodes).map((value) => { return new GroupTreeItem(value.label, value.id, value.description, value.typeString) })
+                return lodash.values(this.groupNodes).filter(value => value.typeString === element.label).map((value) => { return new GroupTreeItem(value.label, value.id, value.description, value.typeString) })
             } else {
                 return []
             }
         }
-        if (element instanceof GroupTreeItem) {
-            if (element.pk in this.groupNodes) {
-                return this.groupNodes[element.pk].nodes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, value.nodeType, 'file') })
-            }
-            return []
-        }
+
         return []
     }
 }

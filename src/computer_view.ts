@@ -44,7 +44,7 @@ export class ComputerTreeProvider implements vscode.TreeDataProvider<ComputerTre
         }
         if (element instanceof ComputerTreeItem) {
             if (element.pk in this.computerCodes) {
-                return this.computerCodes[element.pk].codes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, value.nodeType, 'terminal') })
+                return this.computerCodes[element.pk].codes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, value.nodeType) })
             }
             return []
         }
