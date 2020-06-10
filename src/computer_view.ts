@@ -10,13 +10,13 @@ export class ComputerTreeProvider implements vscode.TreeDataProvider<ComputerTre
 
     // here we make the provider a singleton, so we can refer to it elsewhere
     private static instance: ComputerTreeProvider
-    static getInstance(config: object | undefined = undefined, connectionTimeout: number | undefined = undefined): ComputerTreeProvider {
+    static getInstance(): ComputerTreeProvider {
         if (!ComputerTreeProvider.instance) {
-            ComputerTreeProvider.instance = new ComputerTreeProvider(config, connectionTimeout)
+            ComputerTreeProvider.instance = new ComputerTreeProvider()
         }
         return ComputerTreeProvider.instance
       }
-    private constructor(public config: object | undefined = undefined, public connectionTimeout: number | undefined = undefined) {
+    private constructor() {
         this.onDidChangeTreeData = this._onDidChangeTreeData.event
     }
 
@@ -34,7 +34,7 @@ export class ComputerTreeProvider implements vscode.TreeDataProvider<ComputerTre
 
     async getChildren(element?: ComputerTreeItem | NodeTreeItem): Promise<ComputerTreeItem[] | NodeTreeItem[]> {
         if (!element) {
-            const db = new postgres.Postgres(this.config, this.connectionTimeout)
+            const db = postgres.Database.getInstance()
             this.computerCodes = await db.queryComputerCodes()
             if (this.computerCodes) {
                 return lodash.values(this.computerCodes).map((value) => { return new ComputerTreeItem(value.name, value.id, value.description) })

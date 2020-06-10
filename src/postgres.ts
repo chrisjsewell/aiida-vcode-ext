@@ -1,4 +1,5 @@
 import { Client, Configuration } from 'ts-postgres'
+import * as lodash from 'lodash'
 
 export interface Node {
     id: number,
@@ -24,20 +25,27 @@ const promiseWithTimeout = (timeoutMs: number, client: Client) => {
     ])
 }
 
-export class Postgres {
+export class Database {
 
     public config: Configuration = {}
     public timeoutMs: number = 1000
 
-    constructor(config: Configuration | undefined = undefined, timeoutMs: number | undefined = undefined) {
+    // here we make the database a singleton, so we can refer to it elsewhere
+    private static instance: Database
+    static getInstance(config: object | undefined = undefined, timeoutMs: number | undefined = undefined): Database {
+        if (!Database.instance) {
+            Database.instance = new Database(config, timeoutMs)
+        }
+        return Database.instance
+      }
+
+    private constructor(config: Configuration | undefined = undefined, timeoutMs: number | undefined = undefined) {
         if (config !== undefined) {
             this.config = config
         }
         if (timeoutMs !== undefined) {
             this.timeoutMs = timeoutMs
         }
-        // console.log(this.config)
-        // console.log(this.timeoutMs)
     }
 
     /* wrapper for connecting to the client then running a query */
@@ -72,6 +80,26 @@ export class Postgres {
                 })
             }
             return computers
+        })
+    }
+
+    async queryComputer(pk: number): Promise<object> {
+        return await this.runQuery(async (client) => {
+            const resultIterator = client.query(
+                'SELECT * from db_dbcomputer where db_dbcomputer.id=$1', [pk]
+            )
+            const row = await resultIterator.one()
+            return lodash.zipObject(row.names, row.data)
+        })
+    }
+
+    async queryNode(pk: number): Promise<object> {
+        return await this.runQuery(async (client) => {
+            const resultIterator = client.query(
+                'SELECT * from db_dbnode where db_dbnode.id=$1', [pk]
+            )
+            const row = await resultIterator.one()
+            return lodash.zipObject(row.names, row.data)
         })
     }
 
