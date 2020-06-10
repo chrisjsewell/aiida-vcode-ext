@@ -57,11 +57,11 @@
         "viewsWelcome": [
             {
                 "view": "aiidaComputerCodes",
-                "contents": "No Computers found, check Postgres Database connection?"
+                "contents": "No Computers found, check Postgres Database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             },
             {
                 "view": "aiidaGroupNodes",
-                "contents": "No Groups found, check Postgres Database connection?"
+                "contents": "No Groups found, check Postgres Database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             }
         ],
         "menus": {
