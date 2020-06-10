@@ -90,6 +90,16 @@ export class Database {
         })
     }
 
+    async queryComputerAuth(pk: number): Promise<object> {
+        return await this.runQuery(async (client) => {
+            const resultIterator = client.query(
+                'SELECT * from db_dbauthinfo as a where a.dbcomputer_id=$1', [pk]
+            )
+            const row = await resultIterator.one()
+            return lodash.zipObject(row.names, row.data)
+        })
+    }
+
     async queryNode(pk: number): Promise<object> {
         return await this.runQuery(async (client) => {
             const resultIterator = client.query(

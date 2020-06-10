@@ -7,8 +7,9 @@ import { contentProvider } from './extension'
 export async function inspectComputer(item: items.ComputerTreeItem) {
     const db = Database.getInstance()
     const data = await db.queryComputer(item.pk)
+    const auth = await db.queryComputerAuth(item.pk)
     // const content: string = JSON.stringify(data, undefined, '  ')
-    const content: string = yaml.safeDump(data)
+    const content: string = yaml.safeDump({settings: data, config: auth})
 
     if (contentProvider) {
         await contentProvider.openReadOnlyContent({label: `computer-${item.pk}`, fullId: `aiida-computer-${item.pk}`}, content, '.yaml')
