@@ -56,7 +56,7 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
             if (this.groupBy[this.groupByIndex] === 'icon') {
                 const topLevel: AiidaTreeItem[] = []
                 for (const {icon} of lodash.uniqBy(lodash.values(this.processes), 'icon')) {
-                    const groupTypeItem = new AiidaTreeItem(icon.replace('status', ''), icon, vscode.TreeItemCollapsibleState.Expanded)
+                    const groupTypeItem = new AiidaTreeItem(icon.replace('status', ''), icon, vscode.TreeItemCollapsibleState.Collapsed)
                     topLevel.push(groupTypeItem)
                 }
                 return topLevel
@@ -65,17 +65,19 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
             if (this.groupBy[this.groupByIndex] === 'process') {
                 const topLevel: AiidaTreeItem[] = []
                 for (const {processType} of lodash.uniqBy(lodash.values(this.processes), 'processType')) {
-                    const groupTypeItem = new AiidaTreeItem(processType, undefined, vscode.TreeItemCollapsibleState.Expanded)
+                    const groupTypeItem = new AiidaTreeItem(processType, undefined, vscode.TreeItemCollapsibleState.Collapsed)
                     topLevel.push(groupTypeItem)
                 }
                 return topLevel
             }
         } else {
+            if (!this.processes) {return []}
+
             if (this.groupBy[this.groupByIndex] === 'icon') {
-                return []
+                return this.processes.filter(value => value.icon.replace('status', '') === element.label).map(value => new ProcessTreeItem(value))
             }
             if (this.groupBy[this.groupByIndex] === 'process') {
-                return []
+                return this.processes.filter(value => value.processType === element.label).map(value => new ProcessTreeItem(value))
             }
         }
         return []
