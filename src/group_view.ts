@@ -3,7 +3,7 @@ import * as vscode from 'vscode'
 import * as lodash from 'lodash'
 
 import * as postgres from './postgres'
-import { iconPath, GroupTreeItem, NodeTreeItem, AiidaTreeItem } from './tree_items'
+import { GroupTreeItem, NodeTreeItem, AiidaTreeItem } from './tree_items'
 
 
 export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem> {
@@ -42,8 +42,7 @@ export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem>
             }
             const topLevel: AiidaTreeItem[] = []
             for (const {typeString} of lodash.uniqBy(lodash.values(this.groupNodes), 'typeString')) {
-                const groupTypeItem = new AiidaTreeItem(typeString, vscode.TreeItemCollapsibleState.Expanded)
-                groupTypeItem.iconPath = iconPath('folder')
+                const groupTypeItem = new AiidaTreeItem(typeString, 'folder', vscode.TreeItemCollapsibleState.Expanded)
                 topLevel.push(groupTypeItem)
             }
             return topLevel

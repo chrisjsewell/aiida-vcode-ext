@@ -1,6 +1,9 @@
 'use strict'
 import * as vscode from 'vscode'
 import * as path from 'path'
+import * as yaml from 'js-yaml'
+
+import {Process} from './postgres'
 
 
 export function iconPath(iconName: string) {
@@ -20,20 +23,34 @@ const nodeIconMatches: { type: string, iconName: string }[] = [
 export class AiidaTreeItem extends vscode.TreeItem {
     public readonly pk: number = 0
     public readonly descript: string = ''
-    public readonly typeString: string = ''
 
     constructor(
         public readonly label: string,
-        collapsibleState?: vscode.TreeItemCollapsibleState
+        icon?: string,
+        collapsibleState?: vscode.TreeItemCollapsibleState,
+        public readonly typeString: string = ''
     ) {
         super(label, collapsibleState)
-    }
-
-    get tooltip(): string {
-        return `${this.descript}`
+        if (!icon) {
+            icon = 'file'
+            for (const { type, iconName } of nodeIconMatches) {
+                if (this.typeString.startsWith(type)) {
+                    icon = iconName
+                    break
+                }
+            }
+        }
+        this.iconPath = iconPath(icon)
     }
 
     get description(): string {
+        return ''
+    }
+
+    get tooltip(): string {
+        if (this.descript){
+            return `${this.descript}`
+        }
         return ''
     }
 
@@ -50,12 +67,7 @@ export class ComputerTreeItem extends AiidaTreeItem {
         public readonly descript: string,
         collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Expanded
     ) {
-        super(label, collapsibleState)
-        this.iconPath = iconPath('computer')
-    }
-
-    get tooltip(): string {
-        return `${this.descript}`
+        super(label, 'computer', collapsibleState)
     }
 
     get description(): string {
@@ -77,12 +89,7 @@ export class GroupTreeItem extends AiidaTreeItem {
         public readonly typeString: string,
         collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed
     ) {
-        super(label, collapsibleState)
-        this.iconPath = this.iconPath = iconPath('sub-folder')
-    }
-
-    get tooltip(): string {
-        return `${this.descript}`
+        super(label, 'sub-folder', collapsibleState)
     }
 
     get description(): string {
@@ -103,24 +110,10 @@ export class NodeTreeItem extends AiidaTreeItem {
         public readonly pk: number,
         public readonly descript: string,
         public readonly typeString: string,
-        public readonly icon: string | null = null,
+        public readonly icon?: string,
         collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
     ) {
-        super(label, collapsibleState)
-        if (!icon) {
-            icon = 'file'
-            for (const { type, iconName } of nodeIconMatches) {
-                if (typeString.startsWith(type)) {
-                    icon = iconName
-                    break
-                }
-            }
-        }
-        this.iconPath = iconPath(icon)
-    }
-
-    get tooltip(): string {
-        return `${this.descript}`
+        super(label, icon, collapsibleState, typeString)
     }
 
     get description(): string {
@@ -129,6 +122,28 @@ export class NodeTreeItem extends AiidaTreeItem {
 
     get contextValue(): string {
         return 'node'
+    }
+}
+
+
+export class ProcessTreeItem extends AiidaTreeItem {
+    constructor(
+        public readonly data: Process,
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
+    ) {
+        super(data.processLabel, data.icon, collapsibleState)
+    }
+
+    get description(): string {
+        return `PK: ${this.data.id}, Type: ${this.data.processType}`
+    }
+
+    get tooltip(): string {
+        return yaml.safeDump(this.data)
+    }
+
+    get contextValue(): string {
+        return 'process'
     }
 }
 

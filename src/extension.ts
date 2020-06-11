@@ -9,8 +9,9 @@ import * as vscode from 'vscode'
 
 import { ComputerTreeProvider } from './computer_view'
 import { GroupTreeProvider } from './group_view'
+import { ProcessTreeProvider } from './process_view'
 import { MiscTreeProvider } from './misc_view'
-import { inspectComputer, inspectNode, inspectGroup } from './inspect'
+import { inspectComputer, inspectNode, inspectGroup, inspectProcess } from './inspect'
 import { Database } from './postgres'
 import { Configuration } from 'ts-postgres'
 
@@ -37,6 +38,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider('aiidaComputerCodes', ComputerTreeInstance)
     const GroupTreeInstance = GroupTreeProvider.getInstance()
     vscode.window.registerTreeDataProvider('aiidaGroupNodes', GroupTreeInstance)
+    const ProcessTreeInstance = ProcessTreeProvider.getInstance()
+    vscode.window.registerTreeDataProvider('aiidaProcess', ProcessTreeInstance)
     const MiscTreeInstance = MiscTreeProvider.getInstance()
     vscode.window.registerTreeDataProvider('aiidaMisc', MiscTreeInstance)
 
@@ -51,11 +54,18 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiidaGroupNodes.refreshEntry', () =>
         GroupTreeInstance.refresh()
     )
+    vscode.commands.registerCommand('aiidaProcess.refreshEntry', () =>
+        ProcessTreeInstance.refresh()
+    )
+    vscode.commands.registerCommand('aiidaProcess.toggleGroupBy', () =>
+        ProcessTreeInstance.toggleGroupBy()
+    )
     vscode.commands.registerCommand('aiidaMisc.refreshEntry', () =>
-    MiscTreeInstance.refresh()
+        MiscTreeInstance.refresh()
     )
     vscode.commands.registerCommand('aiida.inspectComputer', inspectComputer)
     vscode.commands.registerCommand('aiida.inspectNode', inspectNode)
+    vscode.commands.registerCommand('aiida.inspectProcess', inspectProcess)
     vscode.commands.registerCommand('aiida.inspectGroup', inspectGroup)
 
     // register configuration change callback
@@ -69,6 +79,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
                 db.timeoutMs = timeout ? timeout as number : 1000
                 ComputerTreeInstance.refresh()
                 GroupTreeInstance.refresh()
+                ProcessTreeInstance.refresh()
                 MiscTreeInstance.refresh()
             }
             if (e.affectsConfiguration('aiida.query_max')) {

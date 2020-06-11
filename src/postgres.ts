@@ -1,3 +1,4 @@
+// Based on aiida-core database schema 1.0.44
 import { Client, Configuration } from 'ts-postgres'
 import * as lodash from 'lodash'
 
@@ -20,6 +21,25 @@ export interface Group {
     typeString: string,
     nodes: Node[]
 }
+
+export interface Process {
+    id: number,
+    label: string | null,
+    description: string | null,
+    mtime: string,
+    nodeType: string,
+    processType: string,
+    processLabel: string,
+    processState: 'created' | 'running' | 'waiting' | 'finished' | 'excepted' | 'killed' | null,
+    processStatus: string | null,
+    exitStatus: number | null,
+    schedulerState: string | null,
+    paused: boolean | null,
+    icon: 'statusSucceeded' | 'statusKilled' | 'statusFailed' | 'statusCreated' | 'statusPaused' | 'statusUnknown' | 'statusWaiting' | 'statusRunning' | 'statusExcepted'
+}
+
+const stateToIcon: {[key: string]: 'statusSucceeded' | 'statusKilled' | 'statusFailed' | 'statusCreated' | 'statusPaused' | 'statusUnknown' | 'statusWaiting' | 'statusRunning' | 'statusExcepted'} = { 'created': 'statusCreated', 'running': 'statusRunning', 'waiting': 'statusWaiting', 'finished': 'statusFailed', 'excepted': 'statusExcepted', 'killed': 'statusKilled' }
+
 
 export interface Setting {
     id: number,
@@ -174,7 +194,8 @@ export class Database {
                 'SELECT g.id, g.label, g.description, g.type_string, n.id, n.label, n.description, n.node_type from db_dbgroup_dbnodes as gn ' +
                 'LEFT JOIN db_dbgroup as g ON g.id = gn.dbgroup_id ' +
                 'LEFT JOIN db_dbnode as n ON n.id = gn.dbnode_id ' +
-                'ORDER BY g.type_string, g.id LIMIT $1', [maxRecords ? maxRecords : this.queryMaxRecords]
+                'ORDER BY g.type_string, g.id LIMIT $1',
+                [maxRecords ? maxRecords : this.queryMaxRecords]
             )
             for await (const row of resultIterator) {
                 const id = row.data[0] as number
@@ -198,5 +219,32 @@ export class Database {
         })
     }
 
-}
+    async queryProcesses(maxRecords: number | null = null): Promise<Process[]> {
+        return await this.runQuery(async (client) => {
+            const results = await client.query(
+                'SELECT n.id, n.label, n.description, n.mtime, n.node_type, n.process_type, ' +
+                "n.attributes -> 'process_state', n.attributes -> 'process_status', n.attributes -> 'process_label', " +
+                "n.attributes -> 'exit_status', n.attributes -> 'scheduler_state', n.attributes -> 'paused', 'statusUnknown'" +
+                'from db_dbnode as n where n.process_type is not null ' +
+                'ORDER BY n.mtime DESC LIMIT $1',
+                [maxRecords ? maxRecords : this.queryMaxRecords]
+            )
+            const names = ['id', 'label', 'description', 'mtime', 'nodeType', 'processType',
+                'processState', 'processStatus', 'processLabel', 'exitStatus', 'schedulerState', 'paused', 'icon']
+            const output = results.rows.map(row => (lodash.zipObject(names, row) as unknown as Process))
+            for (const item of output) {
+                if (item.processState) {
+                    item.icon = lodash.get(stateToIcon, item.processState, 'statusUnknown')
+                }
+                if (item.paused === true) {
+                    item.icon = 'statusPaused'
+                }
+                if (item.exitStatus === 0 && item.processState === 'finished') {
+                    item.icon = 'statusSucceeded'
+                }
+            }
+            return output
+        })
+    }
 
+}

@@ -49,6 +49,10 @@
                     "name": "Groups"
                 },
                 {
+                    "id": "aiidaProcess",
+                    "name": "Processes"
+                },
+                {
                     "id": "aiidaMisc",
                     "name": "Miscellaneous"
                 }
@@ -57,11 +61,15 @@
         "viewsWelcome": [
             {
                 "view": "aiidaComputerCodes",
-                "contents": "No Computers found, check Postgres Database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Computers found, check database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+            },
+            {
+                "view": "aiidaProcess",
+                "contents": "No Processes found, check database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             },
             {
                 "view": "aiidaGroupNodes",
-                "contents": "No Groups found, check Postgres Database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Groups found, check database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             }
         ],
         "menus": {
@@ -77,6 +85,16 @@
                     "group": "navigation"
                 },
                 {
+                    "command": "aiidaProcess.toggleGroupBy",
+                    "when": "view == aiidaProcess",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aiidaProcess.refreshEntry",
+                    "when": "view == aiidaProcess",
+                    "group": "navigation"
+                },
+                {
                     "command": "aiidaMisc.refreshEntry",
                     "when": "view == aiidaMisc",
                     "group": "navigation"
@@ -86,6 +104,10 @@
                 {
                     "command": "aiida.inspectNode",
                     "when": "viewItem == node"
+                },
+                {
+                    "command": "aiida.inspectProcess",
+                    "when": "viewItem == process"
                 },
                 {
                     "command": "aiida.inspectComputer",
@@ -115,6 +137,22 @@
                 }
             },
             {
+                "command": "aiidaProcess.refreshEntry",
+                "title": "AiiDA: Refresh Processes",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "aiidaProcess.toggleGroupBy",
+                "title": "AiiDA: Toggle GroupBy",
+                "icon": {
+                    "light": "resources/light/tag.svg",
+                    "dark": "resources/dark/tag.svg"
+                }
+            },
+            {
                 "command": "aiidaMisc.refreshEntry",
                 "title": "AiiDA: Refresh Settings",
                 "icon": {
@@ -128,6 +166,10 @@
             },
             {
                 "command": "aiida.inspectNode",
+                "title": "Inspect"
+            },
+            {
+                "command": "aiida.inspectProcess",
                 "title": "Inspect"
             },
             {

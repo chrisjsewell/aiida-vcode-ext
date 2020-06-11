@@ -29,6 +29,18 @@ export async function inspectNode(item: items.NodeTreeItem) {
 }
 
 
+export async function inspectProcess(item: items.ProcessTreeItem) {
+    const db = Database.getInstance()
+    const data = await db.queryNode(item.data.id)
+    // const content: string = JSON.stringify(data, undefined, '  ')
+    const content: string = yaml.safeDump(data)
+
+    if (contentProvider) {
+        await contentProvider.openReadOnlyContent({label: `process-${item.data.id}`, fullId: `aiida-process-${item.data.id}`}, content, '.yaml')
+    }
+}
+
+
 export async function inspectGroup(item: items.GroupTreeItem) {
     const db = Database.getInstance()
     const data = await db.queryGroup(item.pk)
