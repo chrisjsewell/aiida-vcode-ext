@@ -16,19 +16,23 @@ export function iconPath(iconName: string) {
 const nodeIconMatches: { type: string, iconName: string }[] = [
     { type: 'data.code', iconName: 'terminal' },
     { type: 'data.dict', iconName: 'list-unordered' },
-    { type: 'process', iconName: 'rocket' },
-    { type: 'data', iconName: 'file' }
+    { type: 'data.remote', iconName: 'link-external' },
+    { type: 'data.folder', iconName: 'archive' },
+    { type: 'data.structure', iconName: 'beaker' },
+    { type: 'data', iconName: 'graph' },
+    { type: 'process', iconName: 'rocket' }
 ]
 
 export class AiidaTreeItem extends vscode.TreeItem {
-    public readonly pk: number = 0
     public readonly descript: string = ''
+    public levelName: string = ''
 
     constructor(
         public readonly label: string,
         icon?: string,
         collapsibleState?: vscode.TreeItemCollapsibleState,
-        public readonly typeString: string = ''
+        public readonly typeString: string = '',
+        public readonly pk: number = 0
     ) {
         super(label, collapsibleState)
         if (!icon) {
@@ -129,7 +133,7 @@ export class NodeTreeItem extends AiidaTreeItem {
 export class ProcessTreeItem extends AiidaTreeItem {
     constructor(
         public readonly data: Process,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed
     ) {
         super(data.processLabel, data.icon, collapsibleState)
     }

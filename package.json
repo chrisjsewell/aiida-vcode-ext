@@ -110,6 +110,10 @@
                     "when": "viewItem == process"
                 },
                 {
+                    "command": "aiida.inspectProcessLogs",
+                    "when": "viewItem == process"
+                },
+                {
                     "command": "aiida.inspectComputer",
                     "when": "viewItem == computer"
                 },
@@ -171,6 +175,10 @@
             {
                 "command": "aiida.inspectProcess",
                 "title": "Inspect"
+            },
+            {
+                "command": "aiida.inspectProcessLogs",
+                "title": "Logs"
             },
             {
                 "command": "aiida.inspectGroup",

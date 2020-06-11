@@ -34,13 +34,13 @@ export class MiscTreeProvider implements vscode.TreeDataProvider<vscode.TreeItem
     async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
 
         if (!element) {
-            const settings = new vscode.TreeItem('Settings', vscode.TreeItemCollapsibleState.Collapsed)
+            const settings = new vscode.TreeItem('DB Settings', vscode.TreeItemCollapsibleState.Collapsed)
             settings.iconPath = iconPath('settings')
             return [
                 settings
             ]
         }
-        if (element.label === 'Settings') {
+        if (element.label === 'DB Settings') {
             const db = postgres.Database.getInstance()
             const settingsList = await db.querySettings()
             if (settingsList) {

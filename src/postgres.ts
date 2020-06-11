@@ -41,6 +41,16 @@ export interface Process {
 const stateToIcon: {[key: string]: 'statusSucceeded' | 'statusKilled' | 'statusFailed' | 'statusCreated' | 'statusPaused' | 'statusUnknown' | 'statusWaiting' | 'statusRunning' | 'statusExcepted'} = { 'created': 'statusCreated', 'running': 'statusRunning', 'waiting': 'statusWaiting', 'finished': 'statusFailed', 'excepted': 'statusExcepted', 'killed': 'statusKilled' }
 
 
+export interface NodeLink {
+    linkDirection: 'incoming' | 'outgoing',
+    linkLabel: string,
+    linkType: string,
+    nodeId: number,
+    nodeLabel: string,
+    nodeDescription: string,
+    nodeType: string
+}
+
 export interface Setting {
     id: number,
     key: string,
@@ -219,6 +229,44 @@ export class Database {
         })
     }
 
+    async queryNodeLogs(pk: number): Promise<object[]> {
+        return await this.runQuery(async (client) => {
+            const results = await client.query(
+                'SELECT * from db_dblog as l WHERE l.dbnode_id=$1 ORDER BY l.time DESC', [pk]
+            )
+            const output = results.rows.map(row => (lodash.zipObject(results.names, row) as unknown as NodeLink))
+            return output
+        })
+    }
+
+    async queryNodeIncoming(pk: number): Promise<NodeLink[]> {
+        return await this.runQuery(async (client) => {
+            const results = await client.query(
+                "SELECT 'incoming', l.label, l.type, n.id, n.label, n.description, n.node_type from db_dblink as l " +
+                'LEFT JOIN db_dbnode as n ON n.id = l.input_id ' +
+                'WHERE l.output_id=$1 ORDER BY n.mtime DESC LIMIT $2',
+                [pk, this.queryMaxRecords]
+            )
+            const names = ['linkDirection', 'linkLabel', 'linkType', 'nodeId', 'nodeLabel', 'nodeDescription', 'nodeType']
+            const output = results.rows.map(row => (lodash.zipObject(names, row)))
+            return output
+        })
+    }
+
+    async queryNodeOutgoing(pk: number): Promise<NodeLink[]> {
+        return await this.runQuery(async (client) => {
+            const results = await client.query(
+                "SELECT 'outgoing', l.label, l.type, n.id, n.label, n.description, n.node_type from db_dblink as l " +
+                'LEFT JOIN db_dbnode as n ON n.id = l.output_id ' +
+                'WHERE l.input_id=$1 ORDER BY n.mtime DESC LIMIT $2',
+                [pk, this.queryMaxRecords]
+            )
+            const names = ['linkDirection', 'linkLabel', 'linkType', 'nodeId', 'nodeLabel', 'nodeDescription', 'nodeType']
+            const output = results.rows.map(row => (lodash.zipObject(names, row) as unknown as NodeLink))
+            return output
+        })
+    }
+
     async queryProcesses(maxRecords: number | null = null): Promise<Process[]> {
         return await this.runQuery(async (client) => {
             const results = await client.query(
@@ -232,6 +280,8 @@ export class Database {
             const names = ['id', 'label', 'description', 'mtime', 'nodeType', 'processType',
                 'processState', 'processStatus', 'processLabel', 'exitStatus', 'schedulerState', 'paused', 'icon']
             const output = results.rows.map(row => (lodash.zipObject(names, row) as unknown as Process))
+
+            // set icon
             for (const item of output) {
                 if (item.processState) {
                     item.icon = lodash.get(stateToIcon, item.processState, 'statusUnknown')

@@ -3,7 +3,7 @@ import * as vscode from 'vscode'
 import * as lodash from 'lodash'
 
 import * as postgres from './postgres'
-import { AiidaTreeItem, ProcessTreeItem } from './tree_items'
+import { AiidaTreeItem, ProcessTreeItem, NodeTreeItem } from './tree_items'
 
 
 export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeItem> {
@@ -43,6 +43,8 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
     }
 
     async getChildren(element?: AiidaTreeItem | ProcessTreeItem): Promise<AiidaTreeItem[] | ProcessTreeItem[]> {
+
+        // Top level
         if (!element) {
             const db = postgres.Database.getInstance()
             this.processes = await db.queryProcesses()
@@ -57,6 +59,7 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
                 const topLevel: AiidaTreeItem[] = []
                 for (const {icon} of lodash.uniqBy(lodash.values(this.processes), 'icon')) {
                     const groupTypeItem = new AiidaTreeItem(icon.replace('status', ''), icon, vscode.TreeItemCollapsibleState.Collapsed)
+                    groupTypeItem.levelName = 'top'
                     topLevel.push(groupTypeItem)
                 }
                 return topLevel
@@ -66,20 +69,46 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
                 const topLevel: AiidaTreeItem[] = []
                 for (const {processType} of lodash.uniqBy(lodash.values(this.processes), 'processType')) {
                     const groupTypeItem = new AiidaTreeItem(processType, undefined, vscode.TreeItemCollapsibleState.Collapsed)
+                    groupTypeItem.levelName = 'top'
                     topLevel.push(groupTypeItem)
                 }
                 return topLevel
             }
-        } else {
-            if (!this.processes) {return []}
 
+            return []
+        }
+
+        if (element.levelName === 'top') {
+            if (!this.processes) {return []}
             if (this.groupBy[this.groupByIndex] === 'icon') {
                 return this.processes.filter(value => value.icon.replace('status', '') === element.label).map(value => new ProcessTreeItem(value))
             }
             if (this.groupBy[this.groupByIndex] === 'process') {
                 return this.processes.filter(value => value.processType === element.label).map(value => new ProcessTreeItem(value))
             }
+            return []
         }
+
+        if (element instanceof ProcessTreeItem){
+            const incomingItem = new AiidaTreeItem('Incoming', 'package-dependencies', vscode.TreeItemCollapsibleState.Collapsed, '', element.data.id)
+            incomingItem.levelName = 'incoming'
+            const outgoingItem = new AiidaTreeItem('Outgoing', 'package-dependents', vscode.TreeItemCollapsibleState.Expanded, '', element.data.id)
+            outgoingItem.levelName = 'outgoing'
+            return [incomingItem, outgoingItem]
+        }
+
+        if (element.levelName === 'incoming') {
+            const db = postgres.Database.getInstance()
+            const nodes = await db.queryNodeIncoming(element.pk)
+            return nodes.map(value => new NodeTreeItem(value.linkLabel, value.nodeId, value.linkType, value.nodeType))
+        }
+
+        if (element.levelName === 'outgoing') {
+            const db = postgres.Database.getInstance()
+            const nodes = await db.queryNodeOutgoing(element.pk)
+            return nodes.map(value => new NodeTreeItem(value.linkLabel, value.nodeId, value.linkType, value.nodeType))
+        }
+
         return []
     }
 }

@@ -11,7 +11,7 @@ import { ComputerTreeProvider } from './computer_view'
 import { GroupTreeProvider } from './group_view'
 import { ProcessTreeProvider } from './process_view'
 import { MiscTreeProvider } from './misc_view'
-import { inspectComputer, inspectNode, inspectGroup, inspectProcess } from './inspect'
+import { inspectComputer, inspectNode, inspectGroup, inspectProcess, inspectProcessLogs } from './inspect'
 import { Database } from './postgres'
 import { Configuration } from 'ts-postgres'
 
@@ -66,6 +66,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiida.inspectComputer', inspectComputer)
     vscode.commands.registerCommand('aiida.inspectNode', inspectNode)
     vscode.commands.registerCommand('aiida.inspectProcess', inspectProcess)
+    vscode.commands.registerCommand('aiida.inspectProcessLogs', inspectProcessLogs)
     vscode.commands.registerCommand('aiida.inspectGroup', inspectGroup)
 
     // register configuration change callback
