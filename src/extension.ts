@@ -1,20 +1,20 @@
 'use strict'
 
-import { isNullOrUndefined } from 'util'
 import * as crypto from 'crypto'
+import { isNullOrUndefined } from 'util'
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
+import { Configuration } from 'ts-postgres'
 
 import { ComputerTreeProvider } from './computer_view'
 import { GroupTreeProvider } from './group_view'
 import { ProcessTreeProvider } from './process_view'
-import { MiscTreeProvider } from './misc_view'
+import { MiscTreeProvider } from './settings_view'
 import { inspectComputer, inspectNode, inspectGroup, inspectProcess, inspectProcessLogs } from './inspect'
 import { Database } from './postgres'
-import { Configuration } from 'ts-postgres'
-
+import { setProfile } from './set_profile'
 
 export let contentProvider: ReadOnlyContentProvider | undefined
 const scheme: string = 'aiidaReadonly'
@@ -41,7 +41,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
     const ProcessTreeInstance = ProcessTreeProvider.getInstance()
     vscode.window.registerTreeDataProvider('aiidaProcess', ProcessTreeInstance)
     const MiscTreeInstance = MiscTreeProvider.getInstance()
-    vscode.window.registerTreeDataProvider('aiidaMisc', MiscTreeInstance)
+    vscode.window.registerTreeDataProvider('aiidaSettings', MiscTreeInstance)
 
     // register text document provider for data inspection
     contentProvider = new ReadOnlyContentProvider()
@@ -60,7 +60,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiidaProcess.toggleGroupBy', () =>
         ProcessTreeInstance.toggleGroupBy()
     )
-    vscode.commands.registerCommand('aiidaMisc.refreshEntry', () =>
+    vscode.commands.registerCommand('aiidaSettings.refreshEntry', () =>
         MiscTreeInstance.refresh()
     )
     vscode.commands.registerCommand('aiida.inspectComputer', inspectComputer)
@@ -68,6 +68,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiida.inspectProcess', inspectProcess)
     vscode.commands.registerCommand('aiida.inspectProcessLogs', inspectProcessLogs)
     vscode.commands.registerCommand('aiida.inspectGroup', inspectGroup)
+
+    vscode.commands.registerCommand('aiida.setProfile', setProfile)
 
     // register configuration change callback
     ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(
@@ -94,7 +96,6 @@ export function activate(ctx: vscode.ExtensionContext): void {
 // this method is called when your extension is deactivated
 export function deactivate() {
 }
-
 
 // see https://code.visualstudio.com/api/extension-guides/virtual-documents
 class ReadOnlyContentProvider implements vscode.TextDocumentContentProvider {

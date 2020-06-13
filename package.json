@@ -53,23 +53,23 @@
                     "name": "Processes"
                 },
                 {
-                    "id": "aiidaMisc",
-                    "name": "Miscellaneous"
+                    "id": "aiidaSettings",
+                    "name": "Settings"
                 }
             ]
         },
         "viewsWelcome": [
             {
                 "view": "aiidaComputerCodes",
-                "contents": "No Computers found, check database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Computers found, check database connection?\n[Set Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             },
             {
                 "view": "aiidaProcess",
-                "contents": "No Processes found, check database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Processes found, check database connection?\n[Set Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             },
             {
                 "view": "aiidaGroupNodes",
-                "contents": "No Groups found, check database connection?\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Groups found, check database connection?\n[Set Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             }
         ],
         "menus": {
@@ -80,7 +80,17 @@
                     "group": "navigation"
                 },
                 {
+                    "command": "aiida.setProfile",
+                    "when": "view == aiidaComputerCodes",
+                    "group": "navigation"
+                },
+                {
                     "command": "aiidaGroupNodes.refreshEntry",
+                    "when": "view == aiidaGroupNodes",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aiida.setProfile",
                     "when": "view == aiidaGroupNodes",
                     "group": "navigation"
                 },
@@ -95,8 +105,18 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "aiidaMisc.refreshEntry",
-                    "when": "view == aiidaMisc",
+                    "command": "aiida.setProfile",
+                    "when": "view == aiidaProcess",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aiidaSettings.refreshEntry",
+                    "when": "view == aiidaSettings",
+                    "group": "navigation"
+                },
+                {
+                    "command": "aiida.setProfile",
+                    "when": "view == aiidaSettings",
                     "group": "navigation"
                 }
             ],
@@ -157,7 +177,7 @@
                 }
             },
             {
-                "command": "aiidaMisc.refreshEntry",
+                "command": "aiidaSettings.refreshEntry",
                 "title": "AiiDA: Refresh Settings",
                 "icon": {
                     "light": "resources/light/refresh.svg",
@@ -183,6 +203,14 @@
             {
                 "command": "aiida.inspectGroup",
                 "title": "Inspect"
+            },
+            {
+                "command": "aiida.setProfile",
+                "title": "AiiDA: Set Profile",
+                "icon": {
+                    "light": "resources/light/connect.svg",
+                    "dark": "resources/dark/connect.svg"
+                }
             }
         ],
         "configuration": {
@@ -198,6 +226,10 @@
                         "database"
                     ],
                     "properties": {
+                        "profile":{
+                            "type": "string",
+                            "default": "quicksetup"
+                        },
                         "host": {
                             "type": "string",
                             "default": "localhost"
@@ -220,23 +252,29 @@
                         },
                         "timeout_ms": {
                             "type": "number",
-                            "default": 1000,
+                            "default": 2000,
                             "description": "timeout connecting after x milliseconds"
                         }
                     },
                     "default": {
+                        "profile": "quicksetup",
                         "host": "localhost",
                         "port": 5432,
                         "user": "aiida",
                         "database": "aiida_db",
                         "password": "password",
-                        "timeout_ms": 1000
+                        "timeout_ms": 2000
                     }
                 },
                 "aiida.query_max": {
                     "description": "maximum records to return from a single query",
                     "type": "number",
                     "default": 10000
+                },
+                "aiida.path": {
+                    "description": "path to the aiida configuration",
+                    "type": "string",
+                    "default": "~/.aiida"
                 }
             }
         },
@@ -249,7 +287,10 @@
     },
     "main": "out/extension",
     "activationEvents": [
-        "onView:aiidaComputerCodes"
+        "onView:aiidaComputerCodes",
+        "onView:aiidaGroupNodes",
+        "onView:aiidaProcess",
+        "onView:aiidaSettings"
     ],
     "devDependencies": {
         "@types/glob": "^7.1.1",

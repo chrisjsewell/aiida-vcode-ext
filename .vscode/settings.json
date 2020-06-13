@@ -20,5 +20,6 @@
     "python.formatting.provider": "black",
     "tslint.enable": false,
     "eslint.validate": ["typescript"],
-    "markdownExtended.disabledPlugins": ""
+    "markdownExtended.disabledPlugins": "",
+    "python.pythonPath": "/anaconda/envs/aiida-dev/bin/python"
 }
