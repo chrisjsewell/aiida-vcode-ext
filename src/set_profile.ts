@@ -38,8 +38,8 @@ export async function setProfile() {
     if (!aiidaPath) {
         return
     }
-    aiidaPath = expanduser(aiidaPath)
-    const configPath = path.normalize(path.join(aiidaPath, 'config.json'))
+    aiidaPath = path.normalize(expanduser(aiidaPath))
+    const configPath = path.join(aiidaPath, 'config.json')
     let profiles: string[]
     let config: any
     try {
@@ -73,5 +73,6 @@ export async function setProfile() {
         'timeout_ms': 2000
     }
     vscode.workspace.getConfiguration('aiida').update('connection', vsConfig)
+    vscode.workspace.getConfiguration('aiida').update('path', aiidaPath)
     vscode.window.showInformationMessage(`Set connection settings for profile: ${profile}`)
 }
