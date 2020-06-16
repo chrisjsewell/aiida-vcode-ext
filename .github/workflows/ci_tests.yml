@@ -41,7 +41,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: start docker containers
+    - name: start docker containers running
       run: |
         cd tests
         docker-compose up -d
@@ -52,6 +52,8 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
       run: npm ci
+    - name: wait for aiida-core to be ready
+      run: docker exec --user aiida aiida-core timeout 10s bash -c 'until verdi profile list 2> /dev/null; do echo -n .; sleep 1; done'
     - run: npm test
       env:
         CI: true
