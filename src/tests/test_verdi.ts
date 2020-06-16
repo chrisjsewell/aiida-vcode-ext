@@ -35,3 +35,6 @@ test('nodeFiles', async t => {
     const value = await verdi.nodeFiles(109)
     t.deepEqual(value.sort(), ['.aiida', '_aiidasubmit.sh', 'aiida.in'])
 })
+
+test.todo('readFile')
+test.todo('readFile, exceeding buffer')

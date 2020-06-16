@@ -59,6 +59,7 @@ export class Verdi {
     }
 
     async nodeFiles(pk: number): Promise<string[]> {
+        // TODO #2 how to discriminate files and folders
         const result = await this.exec(`node repo ls ${pk}`)
         return result.stdout.split('\n').map(line => line.trim()).filter(line => line.length > 0)
     }
