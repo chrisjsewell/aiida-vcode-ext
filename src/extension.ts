@@ -12,8 +12,9 @@ import { ComputerTreeProvider } from './computer_view'
 import { GroupTreeProvider } from './group_view'
 import { ProcessTreeProvider } from './process_view'
 import { MiscTreeProvider } from './settings_view'
-import { inspectComputer, inspectNode, inspectGroup, inspectProcess, inspectProcessLogs } from './inspect'
+import { inspectComputer, inspectNode, inspectGroup, inspectProcess, inspectProcessLogs, inspectFile } from './inspect'
 import { Database } from './postgres'
+import { Verdi, VerdiConfig } from './verdi'
 import { setProfile } from './set_profile'
 
 export let contentProvider: ReadOnlyContentProvider | undefined
@@ -32,6 +33,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
     // setup connection to database
     const db = Database.getInstance(configOptions.get('database'), configOptions.get('database.timeout_ms'))
+    const verdi = Verdi.getInstance(configOptions.get('verdi') as VerdiConfig)
 
     // register views
     const ComputerTreeInstance = ComputerTreeProvider.getInstance()
@@ -68,27 +70,42 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiida.inspectProcess', inspectProcess)
     vscode.commands.registerCommand('aiida.inspectProcessLogs', inspectProcessLogs)
     vscode.commands.registerCommand('aiida.inspectGroup', inspectGroup)
+    vscode.commands.registerCommand('aiida.inspectFile', inspectFile)
 
     vscode.commands.registerCommand('aiida.setProfile', setProfile)
 
     // register configuration change callback
     ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(
         (e: vscode.ConfigurationChangeEvent) => {
+            configOptions = vscode.workspace.getConfiguration('aiida')
             if (e.affectsConfiguration('aiida.database')) {
-                configOptions = vscode.workspace.getConfiguration('aiida')
                 const config = configOptions.get('database')
                 const timeout = configOptions.get('database.timeout_ms')
                 db.config = config ? config as Configuration : {}
-                db.timeoutMs = timeout ? timeout as number : 1000
+                db.timeoutMs = timeout ? timeout as number : 2000
                 ComputerTreeInstance.refresh()
                 GroupTreeInstance.refresh()
                 ProcessTreeInstance.refresh()
                 MiscTreeInstance.refresh()
             }
             if (e.affectsConfiguration('aiida.query_max')) {
-                configOptions = vscode.workspace.getConfiguration('aiida')
                 const queryMax = configOptions.get('query_max')
                 db.queryMaxRecords = queryMax ? queryMax as number : 10000
+            }
+            if (e.affectsConfiguration('aiida.verdi')) {
+                const config: any | undefined = configOptions.get('verdi')
+                verdi.config = config ? {
+                    command: config.command,
+                    timeoutMs: config.timeout_ms,
+                    profile: config.profile,
+                    path: config.path,
+                    maxBufferKb: config.max_buffer_kb} : {
+                        command: null, timeoutMs: 2000
+                    }
+                verdi.update()
+                ComputerTreeInstance.refresh()
+                GroupTreeInstance.refresh()
+                ProcessTreeInstance.refresh()
             }
         }))
 }

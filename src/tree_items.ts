@@ -64,6 +64,27 @@ export class AiidaTreeItem extends vscode.TreeItem {
 }
 
 
+export class FileTreeItem extends AiidaTreeItem {
+    constructor(
+        public readonly label: string,
+        public readonly pk: number,
+        public readonly descript: string,
+        collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
+    ) {
+        super(label, 'file', collapsibleState)
+    }
+
+    get description(): string {
+        return ''
+    }
+
+    get contextValue(): string {
+        return 'file'
+    }
+
+}
+
+
 export class ComputerTreeItem extends AiidaTreeItem {
     constructor(
         public readonly label: string,

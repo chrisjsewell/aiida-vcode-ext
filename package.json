@@ -140,6 +140,10 @@
                 {
                     "command": "aiida.inspectGroup",
                     "when": "viewItem == group"
+                },
+                {
+                    "command": "aiida.inspectFile",
+                    "when": "viewItem == file"
                 }
             ]
         },
@@ -203,6 +207,10 @@
             {
                 "command": "aiida.inspectGroup",
                 "title": "Inspect"
+            },
+            {
+                "command": "aiida.inspectFile",
+                "title": "Open"
             },
             {
                 "command": "aiida.setProfile",
@@ -300,13 +308,19 @@
                             "type": "number",
                             "default": 2000,
                             "description": "timeout execution after x milliseconds"
+                        },
+                        "max_buffer_kb": {
+                            "type": "number",
+                            "default": 1024,
+                            "description": "Largest amount of data in kilobytes allowed to be streamed"
                         }
                     },
                     "default": {
                         "command": null,
                         "path": "~/.aiida",
                         "profile": "quicksetup",
-                        "timeout_ms": 2000
+                        "timeout_ms": 2000,
+                        "max_buffer_kb": 1024
                     }
                 }
             }

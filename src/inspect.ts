@@ -1,7 +1,9 @@
 import * as yaml from 'js-yaml'
+import * as path from 'path'
 
 import * as items from './tree_items'
 import { Database } from './postgres'
+import { Verdi } from './verdi'
 import { contentProvider } from './extension'
 
 export async function inspectComputer(item: items.ComputerTreeItem) {
@@ -61,5 +63,17 @@ export async function inspectGroup(item: items.GroupTreeItem) {
 
     if (contentProvider) {
         await contentProvider.openReadOnlyContent({label: `group-${item.pk}`, fullId: `aiida-group-${item.pk}`}, content, '.yaml')
+    }
+}
+
+export async function inspectFile(item: items.FileTreeItem) {
+    const verdi = Verdi.getInstance()
+    const content = await verdi.readFile(item.pk, item.label)
+    let ext = path.extname(item.label)
+    if (ext === ''){
+        ext = '.txt'
+    }
+    if (contentProvider) {
+        await contentProvider.openReadOnlyContent({label: `node-${item.pk}-${path.basename(item.label, ext)}`, fullId: `aiida-file-${item.pk}-${item.label}`}, content, ext)
     }
 }

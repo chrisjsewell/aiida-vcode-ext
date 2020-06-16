@@ -3,7 +3,8 @@ import * as vscode from 'vscode'
 import * as lodash from 'lodash'
 
 import * as postgres from './postgres'
-import { AiidaTreeItem, ProcessTreeItem, NodeTreeItem } from './tree_items'
+import { Verdi } from './verdi'
+import { AiidaTreeItem, ProcessTreeItem, NodeTreeItem, FileTreeItem } from './tree_items'
 
 
 export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeItem> {
@@ -100,13 +101,19 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
         if (element.levelName === 'incoming') {
             const db = postgres.Database.getInstance()
             const nodes = await db.queryNodeIncoming(element.pk)
-            return nodes.map(value => new NodeTreeItem(value.linkLabel, value.nodeId, value.linkType, value.nodeType))
+            return nodes.map(value => new NodeTreeItem(value.linkLabel, value.nodeId, value.linkType, value.nodeType, undefined, vscode.TreeItemCollapsibleState.Collapsed))
         }
 
         if (element.levelName === 'outgoing') {
             const db = postgres.Database.getInstance()
             const nodes = await db.queryNodeOutgoing(element.pk)
-            return nodes.map(value => new NodeTreeItem(value.linkLabel, value.nodeId, value.linkType, value.nodeType))
+            return nodes.map(value => new NodeTreeItem(value.linkLabel, value.nodeId, value.linkType, value.nodeType, undefined, vscode.TreeItemCollapsibleState.Collapsed))
+        }
+
+        if (element instanceof NodeTreeItem){
+            const verdi = Verdi.getInstance()
+            const files = await verdi.nodeFiles(element.pk)
+            return files.map(value => new FileTreeItem(value, element.pk, ''))
         }
 
         return []

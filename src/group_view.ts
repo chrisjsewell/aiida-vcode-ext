@@ -3,7 +3,8 @@ import * as vscode from 'vscode'
 import * as lodash from 'lodash'
 
 import * as postgres from './postgres'
-import { GroupTreeItem, NodeTreeItem, AiidaTreeItem } from './tree_items'
+import { Verdi } from './verdi'
+import { GroupTreeItem, NodeTreeItem, AiidaTreeItem, FileTreeItem } from './tree_items'
 
 
 export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem> {
@@ -15,14 +16,14 @@ export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem>
             GroupTreeProvider.instance = new GroupTreeProvider()
         }
         return GroupTreeProvider.instance
-      }
+    }
     private constructor() {
         this.onDidChangeTreeData = this._onDidChangeTreeData.event
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<GroupTreeItem | undefined> = new vscode.EventEmitter<GroupTreeItem | undefined>()
     readonly onDidChangeTreeData: vscode.Event<GroupTreeItem | undefined>
-    private groupNodes: {[key: number]: postgres.Group} = {}
+    private groupNodes: { [key: number]: postgres.Group } = {}
 
     refresh() {
         this._onDidChangeTreeData.fire(undefined)
@@ -41,8 +42,9 @@ export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem>
                 return []
             }
             const topLevel: AiidaTreeItem[] = []
-            for (const {typeString} of lodash.uniqBy(lodash.values(this.groupNodes), 'typeString')) {
+            for (const { typeString } of lodash.uniqBy(lodash.values(this.groupNodes), 'typeString')) {
                 const groupTypeItem = new AiidaTreeItem(typeString, 'folder', vscode.TreeItemCollapsibleState.Expanded)
+                groupTypeItem.levelName = 'group-type'
                 topLevel.push(groupTypeItem)
             }
             return topLevel
@@ -50,17 +52,23 @@ export class GroupTreeProvider implements vscode.TreeDataProvider<GroupTreeItem>
 
         if (element instanceof GroupTreeItem) {
             if (element.pk in this.groupNodes) {
-                return this.groupNodes[element.pk].nodes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, value.nodeType) })
+                return this.groupNodes[element.pk].nodes.map((value) => { return new NodeTreeItem(value.label, value.id, value.description, value.nodeType, undefined, vscode.TreeItemCollapsibleState.Collapsed) })
             }
             return []
         }
 
-        if (element instanceof AiidaTreeItem) {
+        if (element.levelName === 'group-type') {
             if (this.groupNodes) {
                 return lodash.values(this.groupNodes).filter(value => value.typeString === element.label).map((value) => { return new GroupTreeItem(value.label, value.id, value.description, value.typeString) })
             } else {
                 return []
             }
+        }
+
+        if (element instanceof NodeTreeItem) {
+            const verdi = Verdi.getInstance()
+            const files = await verdi.nodeFiles(element.pk)
+            return files.map(value => new FileTreeItem(value, element.pk, ''))
         }
 
         return []

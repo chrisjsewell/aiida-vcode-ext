@@ -176,6 +176,11 @@ export async function setProfile() {
 
     // save configuration to settings
     await vscode.workspace.getConfiguration('aiida').update('database', vsConfig)
-    await vscode.workspace.getConfiguration('aiida').update('verdi', {'command': verdiCommand, 'path': aiidaPath, profile, 'timeout_ms': timeout})
+    await vscode.workspace.getConfiguration('aiida').update('verdi', {
+        'command': verdiCommand,
+        'path': aiidaPath, profile,
+        'timeout_ms': timeout,
+        'max_buffer_kb': 1024
+    })
     vscode.window.showInformationMessage(`Added configuration settings for profile: ${profile}`)
 }
