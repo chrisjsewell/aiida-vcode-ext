@@ -31,7 +31,7 @@ export function activate(ctx: vscode.ExtensionContext): void {
     let configOptions: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('aiida')
 
     // setup connection to database
-    const db = Database.getInstance(configOptions.get('connection'), configOptions.get('connection.timeout_ms'))
+    const db = Database.getInstance(configOptions.get('database'), configOptions.get('database.timeout_ms'))
 
     // register views
     const ComputerTreeInstance = ComputerTreeProvider.getInstance()
@@ -74,10 +74,10 @@ export function activate(ctx: vscode.ExtensionContext): void {
     // register configuration change callback
     ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(
         (e: vscode.ConfigurationChangeEvent) => {
-            if (e.affectsConfiguration('aiida.connection')) {
+            if (e.affectsConfiguration('aiida.database')) {
                 configOptions = vscode.workspace.getConfiguration('aiida')
-                const config = configOptions.get('connection')
-                const timeout = configOptions.get('connection.timeout_ms')
+                const config = configOptions.get('database')
+                const timeout = configOptions.get('database.timeout_ms')
                 db.config = config ? config as Configuration : {}
                 db.timeoutMs = timeout ? timeout as number : 1000
                 ComputerTreeInstance.refresh()

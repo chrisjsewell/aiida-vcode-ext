@@ -61,15 +61,15 @@
         "viewsWelcome": [
             {
                 "view": "aiidaComputerCodes",
-                "contents": "No Computers found, check database connection?\n[Set Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Computers found, check database connection?\n[Setup Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             },
             {
                 "view": "aiidaProcess",
-                "contents": "No Processes found, check database connection?\n[Set Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Processes found, check database connection?\n[Setup Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             },
             {
                 "view": "aiidaGroupNodes",
-                "contents": "No Groups found, check database connection?\n[Set Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
+                "contents": "No Groups found, check database connection?\n[Setup Profile](command:aiida.setProfile)\n[Open Settings](command:workbench.action.openSettings?%5B%22aiida%22%5D)"
             }
         ],
         "menus": {
@@ -206,7 +206,7 @@
             },
             {
                 "command": "aiida.setProfile",
-                "title": "AiiDA: Set Profile",
+                "title": "AiiDA: Setup Profile",
                 "icon": {
                     "light": "resources/light/connect.svg",
                     "dark": "resources/dark/connect.svg"
@@ -216,7 +216,7 @@
         "configuration": {
             "title": "AiiDA-Repository Configuration",
             "properties": {
-                "aiida.connection": {
+                "aiida.database": {
                     "description": "parameters for connecting to the postgres database",
                     "type": "object",
                     "required": [
@@ -226,10 +226,6 @@
                         "database"
                     ],
                     "properties": {
-                        "profile":{
-                            "type": "string",
-                            "default": "quicksetup"
-                        },
                         "host": {
                             "type": "string",
                             "default": "localhost"
@@ -244,7 +240,7 @@
                         },
                         "database": {
                             "type": "string",
-                            "default": "aiida_db"
+                            "default": "aiidadb"
                         },
                         "password": {
                             "type": "string",
@@ -257,11 +253,10 @@
                         }
                     },
                     "default": {
-                        "profile": "quicksetup",
                         "host": "localhost",
                         "port": 5432,
                         "user": "aiida",
-                        "database": "aiida_db",
+                        "database": "aiidadb",
                         "password": "password",
                         "timeout_ms": 2000
                     }
@@ -271,11 +266,40 @@
                     "type": "number",
                     "default": 10000
                 },
-                "aiida.path": {
-                    "description": "path to the aiida configuration",
-                    "type": "string",
-                    "default": "~/.aiida"
+                "aiida.verdi": {
+                    "description": "parameters for calling the verdi CLI",
+                    "type": "object",
+                    "required": ["path", "command", "profile"],
+                    "properties": {
+                        "path": {
+                            "description": "path to the aiida configuration",
+                            "type": ["string", "null"],
+                            "default": "~/.aiida"
+                        },
+                        "profile": {
+                            "description": "The aiida profile to use",
+                            "type": "string",
+                            "default": "quicksetup"
+                        },
+                        "command": {
+                            "description": "command for calling verdi",
+                            "type": ["string", "null"],
+                            "default": null
+                        },
+                        "timeout_ms": {
+                            "type": "number",
+                            "default": 2000,
+                            "description": "timeout execution after x milliseconds"
+                        }
+                    },
+                    "default": {
+                        "command": null,
+                        "path": "~/.aiida",
+                        "profile": "quicksetup",
+                        "timeout_ms": 2000
+                    }
                 }
+
             }
         },
         "snippets": [

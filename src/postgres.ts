@@ -38,7 +38,7 @@ export interface Process {
     icon: 'statusSucceeded' | 'statusKilled' | 'statusFailed' | 'statusCreated' | 'statusPaused' | 'statusUnknown' | 'statusWaiting' | 'statusRunning' | 'statusExcepted'
 }
 
-const stateToIcon: {[key: string]: 'statusSucceeded' | 'statusKilled' | 'statusFailed' | 'statusCreated' | 'statusPaused' | 'statusUnknown' | 'statusWaiting' | 'statusRunning' | 'statusExcepted'} = { 'created': 'statusCreated', 'running': 'statusRunning', 'waiting': 'statusWaiting', 'finished': 'statusFailed', 'excepted': 'statusExcepted', 'killed': 'statusKilled' }
+const stateToIcon: { [key: string]: 'statusSucceeded' | 'statusKilled' | 'statusFailed' | 'statusCreated' | 'statusPaused' | 'statusUnknown' | 'statusWaiting' | 'statusRunning' | 'statusExcepted' } = { 'created': 'statusCreated', 'running': 'statusRunning', 'waiting': 'statusWaiting', 'finished': 'statusFailed', 'excepted': 'statusExcepted', 'killed': 'statusKilled' }
 
 
 export interface NodeLink {
@@ -62,7 +62,7 @@ export interface Setting {
  * Add timeout for DB connection,
  * see: https://spin.atomicobject.com/2020/01/16/timeout-promises-nodejs/
 */
-const promiseWithTimeout = (timeoutMs: number, client: Client) => {
+const connectWithTimeout = (timeoutMs: number, client: Client) => {
     return Promise.race([
         client.connect(),
         new Promise((resolve, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs)),
@@ -72,7 +72,7 @@ const promiseWithTimeout = (timeoutMs: number, client: Client) => {
 export class Database {
 
     public config: Configuration = {}
-    public timeoutMs: number = 1000
+    public timeoutMs: number = 2000
     public queryMaxRecords: number = 10000
 
     // here we make the database a singleton, so we can refer to it elsewhere
@@ -97,16 +97,25 @@ export class Database {
     private async runQuery(action: (client: Client) => Promise<any>): Promise<any> {
         const client = new Client(this.config)
         try {
-            await promiseWithTimeout(this.timeoutMs, client)
+            await connectWithTimeout(this.timeoutMs, client)
         } catch (error) {
             return null
         }
         let output: any[]
         try {
-            output = await action(client)
-        } finally {
-            await client.end()
+            output = await Promise.race([
+                action(client),
+                new Promise((resolve, reject) => setTimeout(() => reject(new Error('timeout')), this.timeoutMs)),
+            ])
+        } catch (error) {
+            output = []
         }
+        try {
+            await client.end()
+        } catch (error) {}
+
+        // TODO how best to inform user of timeout?
+
         return output
     }
 

@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+
+  database:
+    image: postgres:12.3
+    container_name: aiida-database
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432 # main port
+    volumes:
+      - "./postgres_db:/docker-entrypoint-initdb.d"
+      - "aiida-postgres-db:/var/lib/postgresql/data"
+    restart: always
+
+  core:
+    image: chrisjsewell/aiida-core:1.2.1
+    container_name: aiida-core
+    depends_on:
+      - database
+    volumes:
+      - "./aiida_db:/etc/my_init.d"
+      - "aiida-object-store:/home/aiida/.aiida"
+
+volumes:
+  aiida-postgres-db:
+  aiida-object-store:

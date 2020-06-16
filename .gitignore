@@ -103,6 +103,7 @@ dist
 # TernJS port file
 .tern-port
 
+.DS_Store
 out/*
-
+tests/backup/*
 vsc-extension-quickstart.md
