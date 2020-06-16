@@ -95,7 +95,9 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
             incomingItem.levelName = 'incoming'
             const outgoingItem = new AiidaTreeItem('Outgoing', 'package-dependents', vscode.TreeItemCollapsibleState.Expanded, '', element.data.id)
             outgoingItem.levelName = 'outgoing'
-            return [incomingItem, outgoingItem]
+            const filesItem = new AiidaTreeItem('Files', 'folder', vscode.TreeItemCollapsibleState.Collapsed, '', element.data.id)
+            filesItem.levelName = 'files'
+            return [incomingItem, outgoingItem, filesItem]
         }
 
         if (element.levelName === 'incoming') {
@@ -110,7 +112,7 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
             return nodes.map(value => new NodeTreeItem(value.linkLabel, value.nodeId, value.linkType, value.nodeType, undefined, vscode.TreeItemCollapsibleState.Collapsed))
         }
 
-        if (element instanceof NodeTreeItem){
+        if (element.levelName === 'files' || element instanceof NodeTreeItem){
             const verdi = Verdi.getInstance()
             const result = await verdi.nodeFiles(element.pk)
             return result.files.map(value => new FileTreeItem(value, element.pk, ''))

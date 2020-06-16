@@ -71,7 +71,7 @@ export async function inspectFile(item: items.FileTreeItem) {
     const verdi = Verdi.getInstance()
     const result = await verdi.readFile(item.pk, item.label)
     if (result.error) {
-        vscode.window.showErrorMessage(`${item.label}: ${result.error.message} (code ${result.error.code})`)
+        vscode.window.showWarningMessage(`${item.label} truncated: ${result.error.message} (code ${result.error.code})`)
     }
     let ext = path.extname(item.label)
     if (ext === ''){
