@@ -7,7 +7,7 @@ jobs:
 
   lint:
 
-    name: "${{ matrix.os }}/Node-${{matrix.node-version}}"
+    name: "ts-lint"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,6 +38,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: start docker containers
+      run: |
+        cd tests
+        docker-compose up -d
+        cd ..
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
