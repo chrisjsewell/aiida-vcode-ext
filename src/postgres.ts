@@ -65,7 +65,7 @@ export interface Setting {
 const connectWithTimeout = (timeoutMs: number, client: Client) => {
     return Promise.race([
         client.connect(),
-        new Promise((resolve, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs)),
+        new Promise((resolve, reject) => setTimeout(() => reject(new Error('AiiDA DB connection timeout')), timeoutMs)),
     ])
 }
 
@@ -77,7 +77,7 @@ export class Database {
 
     // here we make the database a singleton, so we can refer to it elsewhere
     private static instance: Database
-    static getInstance(config: object | undefined = undefined, timeoutMs: number | undefined = undefined): Database {
+    static getInstance(config: Configuration | undefined = undefined, timeoutMs: number | undefined = undefined): Database {
         if (!Database.instance) {
             Database.instance = new Database(config, timeoutMs)
         }
@@ -105,18 +105,24 @@ export class Database {
         try {
             output = await Promise.race([
                 action(client),
-                new Promise((resolve, reject) => setTimeout(() => reject(new Error('timeout')), this.timeoutMs)),
+                new Promise((resolve, reject) => setTimeout(() => reject(new Error('AiiDA DB query timeout')), this.timeoutMs)),
             ])
-        } catch (error) {
-            output = []
+        } finally {
+            try {
+                await client.end()
+            } catch (error) {}
         }
-        try {
-            await client.end()
-        } catch (error) {}
 
-        // TODO how best to inform user of timeout?
+        // TODO how best to catch errors and inform user of e.g. timeout?
 
         return output
+    }
+
+    async testConnection(): Promise<string | null> {
+        return await this.runQuery(async (client) => {
+            const row = await client.query('SELECT CURRENT_USER as user').one()
+            return row.get('user')
+        })
     }
 
     async queryComputer(pk: number): Promise<object> {

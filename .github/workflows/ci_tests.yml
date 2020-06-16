@@ -5,6 +5,26 @@ on: [push, pull_request]
 
 jobs:
 
+  lint:
+
+    name: "${{ matrix.os }}/Node-${{matrix.node-version}}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [12.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install depedencies
+      run: |
+        npm ci
+    - name: Lint Code
+      run: npm run lint
+
   build:
 
     name: "${{ matrix.os }}/Node-${{matrix.node-version}}"
@@ -13,7 +33,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node-version: [10.x]
+        node-version: [12.x]
         # code-version: [stable, insiders]
 
     steps:
@@ -22,19 +42,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Compile
-      run: |
-        npm ci
-        npm run compile
-    - name: Lint Code
-      run: npm run lint
-    # - name: Run tests
-    #   run: npm test
+    - name: Install dependencies
+      run: npm ci
+    - run: npm test
+      env:
+        CI: true
 
   publish:
     # only if all tests complete and the commit is tagged as a release
     name: Publish to Marketplace
-    needs: build
+    needs: [lint, build]
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && contains(github.ref, 'release')
     runs-on: ubuntu-latest
     steps:

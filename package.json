@@ -269,11 +269,18 @@
                 "aiida.verdi": {
                     "description": "parameters for calling the verdi CLI",
                     "type": "object",
-                    "required": ["path", "command", "profile"],
+                    "required": [
+                        "path",
+                        "command",
+                        "profile"
+                    ],
                     "properties": {
                         "path": {
                             "description": "path to the aiida configuration",
-                            "type": ["string", "null"],
+                            "type": [
+                                "string",
+                                "null"
+                            ],
                             "default": "~/.aiida"
                         },
                         "profile": {
@@ -283,7 +290,10 @@
                         },
                         "command": {
                             "description": "command for calling verdi",
-                            "type": ["string", "null"],
+                            "type": [
+                                "string",
+                                "null"
+                            ],
                             "default": null
                         },
                         "timeout_ms": {
@@ -299,7 +309,6 @@
                         "timeout_ms": 2000
                     }
                 }
-
             }
         },
         "snippets": [
@@ -324,8 +333,10 @@
         "@types/vscode": "^1.41.0",
         "@typescript-eslint/eslint-plugin": "^2.24.0",
         "@typescript-eslint/parser": "^2.24.0",
+        "ava": "^3.9.0",
         "eslint": "^6.8.0",
         "eslint-plugin-import": "^2.20.1",
+        "esm": "^3.2.25",
         "minimist": ">=1.2.2",
         "mocha": "^6.1.4",
         "nunjucks": "^3.2.1",
@@ -350,6 +361,11 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile",
-        "test": "node out/test/runIntergration.js && mocha --ui tdd out/test/standalone/"
+        "test": "ava -v"
+    },
+    "ava": {
+        "files": [
+            "out/tests/*.js"
+        ]
     }
 }
