@@ -25,15 +25,17 @@ jobs:
     - name: Lint Code
       run: npm run lint
 
-  build:
+  tests:
 
     name: "${{ matrix.os }}/Node-${{matrix.node-version}}"
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         # note docker is not installed on macos-latest: https://github.community/t/is-it-possible-to-install-and-configure-docker-on-macos-runner/16981/5
-        os: [ubuntu-latest, windows-latest]
+        # and windows-lates requires running linux containers: https://github.community/t/how-to-use-linux-docker-container-on-windows-vm/16926/2
+        os: [ubuntu-latest]
         node-version: [12.x]
         # code-version: [stable, insiders]
 
