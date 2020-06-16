@@ -105,5 +105,5 @@ dist
 
 .DS_Store
 out/*
-tests/backup/*
+docker/backup/*
 vsc-extension-quickstart.md
