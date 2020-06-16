@@ -32,7 +32,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        # note docker is not installed on macos-latest: https://github.community/t/is-it-possible-to-install-and-configure-docker-on-macos-runner/16981/5
+        os: [ubuntu-latest, windows-latest]
         node-version: [12.x]
         # code-version: [stable, insiders]
 
