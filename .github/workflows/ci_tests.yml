@@ -53,7 +53,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install dependencies
       run: npm ci
-    - name: wait for aiida-core to be ready
+    - name: wait for aiida folder to be unzipped
+      run: docker exec --user aiida aiida-core timeout 10s bash -c 'until [ -f /opt/UNZIP_COMPLETED ] 2> /dev/null; do echo -n .; sleep 1; done'
+    - name: wait for aiida profile to be ready (i.e. postgres connection)
       run: docker exec --user aiida aiida-core timeout 60s bash -c 'until verdi profile list 2> /dev/null; do echo -n .; sleep 1; done'
     - run: npm test
       env:
