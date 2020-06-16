@@ -43,7 +43,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: start docker containers running
       run: |
-        cd tests
+        cd docker
         docker-compose up -d
         docker-compose ps
         cd ..
