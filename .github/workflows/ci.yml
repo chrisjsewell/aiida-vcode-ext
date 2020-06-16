@@ -1,0 +1,77 @@
+# see https://github.com/sdras/awesome-actions for a good list of available action
+name: Github-CI
+
+on: [push, pull_request]
+
+jobs:
+
+  lint:
+
+    name: "ts-lint"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [12.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install depedencies
+      run: |
+        npm ci
+    - name: Lint Code
+      run: npm run lint
+
+  tests:
+
+    name: "${{ matrix.os }}/Node-${{matrix.node-version}}"
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # note docker is not installed on macos-latest: https://github.community/t/is-it-possible-to-install-and-configure-docker-on-macos-runner/16981/5
+        # and windows-lates requires running linux containers: https://github.community/t/how-to-use-linux-docker-container-on-windows-vm/16926/2
+        os: [ubuntu-latest]
+        node-version: [12.x]
+        # code-version: [stable, insiders]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: start docker containers running
+      run: |
+        cd tests
+        docker-compose up -d
+        docker-compose ps
+        cd ..
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: npm ci
+    - name: wait for aiida folder to be unzipped
+      run: docker exec --user aiida aiida-core timeout 60s bash -c 'until [ -f /opt/UNZIP_COMPLETED ] 2> /dev/null; do echo -n .; sleep 1; done'
+    - name: wait for aiida profile to be ready (i.e. postgres connection)
+      run: docker exec --user aiida aiida-core timeout 60s bash -c 'until verdi profile list 2> /dev/null; do echo -n .; sleep 1; done'
+    - run: npm test
+      env:
+        CI: true
+
+  publish:
+    # only if all tests complete and the commit is tagged as a release
+    name: Publish to Marketplace
+    needs: [lint, tests]
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && contains(github.ref, 'release')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: npm ci
+    - uses: lannonbr/vsce-action@master
+      with:
+        args: "publish -p $VSCE_TOKEN"
+      env:
+        VSCE_TOKEN: ${{ secrets.VSCE_PUB }}

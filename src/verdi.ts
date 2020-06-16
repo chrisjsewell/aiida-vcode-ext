@@ -77,10 +77,15 @@ export class Verdi {
 
     async nodeFiles(pk: number): Promise<{files: string[], error: ExecError | null}> {
         // TODO #2 how to discriminate files and folders
-        const result = await this.exec(`node repo ls ${pk}`)
+        let result
+        result = await this.exec(`node repo ls ${pk}`)
         // TODO deal with this better in VSCode
         if (result.error) {
-            throw(result.error)
+            // we try twice, in case of intermittent failure, since its a relatively cheap command
+            result = await this.exec(`node repo ls ${pk}`)
+        }
+        if (result.error) {
+            console.log(result.error)
         }
         return {
             files: result.stdout.toString().split('\n').map(line => line.trim()).filter(line => line.length > 0),

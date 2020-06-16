@@ -114,7 +114,7 @@ export class GroupTreeItem extends AiidaTreeItem {
         public readonly typeString: string,
         collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed
     ) {
-        super(label, 'sub-folder', collapsibleState)
+        super(label, 'repo', collapsibleState)
     }
 
     get description(): string {
