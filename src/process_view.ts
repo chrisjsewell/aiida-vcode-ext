@@ -112,8 +112,8 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
 
         if (element instanceof NodeTreeItem){
             const verdi = Verdi.getInstance()
-            const files = await verdi.nodeFiles(element.pk)
-            return files.map(value => new FileTreeItem(value, element.pk, ''))
+            const result = await verdi.nodeFiles(element.pk)
+            return result.files.map(value => new FileTreeItem(value, element.pk, ''))
         }
 
         return []

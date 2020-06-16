@@ -1,5 +1,6 @@
 import * as yaml from 'js-yaml'
 import * as path from 'path'
+import * as vscode from 'vscode'
 
 import * as items from './tree_items'
 import { Database } from './postgres'
@@ -68,12 +69,19 @@ export async function inspectGroup(item: items.GroupTreeItem) {
 
 export async function inspectFile(item: items.FileTreeItem) {
     const verdi = Verdi.getInstance()
-    const content = await verdi.readFile(item.pk, item.label)
+    const result = await verdi.readFile(item.pk, item.label)
+    if (result.error) {
+        vscode.window.showErrorMessage(`${item.label}: ${result.error.message} (code ${result.error.code})`)
+    }
     let ext = path.extname(item.label)
     if (ext === ''){
         ext = '.txt'
     }
     if (contentProvider) {
-        await contentProvider.openReadOnlyContent({label: `node-${item.pk}-${path.basename(item.label, ext)}`, fullId: `aiida-file-${item.pk}-${item.label}`}, content, ext)
+        await contentProvider.openReadOnlyContent({
+            label: `node-${item.pk}-${path.basename(item.label, ext)}`,
+            fullId: `aiida-file-${item.pk}-${item.label}`},
+            // TODO what if binary file (will probably fail in verdi)
+            result.content.toString(), ext)
     }
 }

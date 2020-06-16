@@ -14,7 +14,7 @@ import { ProcessTreeProvider } from './process_view'
 import { MiscTreeProvider } from './settings_view'
 import { inspectComputer, inspectNode, inspectGroup, inspectProcess, inspectProcessLogs, inspectFile } from './inspect'
 import { Database } from './postgres'
-import { Verdi, VerdiConfig } from './verdi'
+import { Verdi } from './verdi'
 import { setProfile } from './set_profile'
 
 export let contentProvider: ReadOnlyContentProvider | undefined
@@ -33,7 +33,18 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
     // setup connection to database
     const db = Database.getInstance(configOptions.get('database'), configOptions.get('database.timeout_ms'))
-    const verdi = Verdi.getInstance(configOptions.get('verdi') as VerdiConfig)
+
+    const verdiInit: any | undefined = configOptions.get('verdi')
+    const verdi = Verdi.getInstance(verdiInit ? {
+        command: verdiInit.command,
+        timeoutMs: verdiInit.timeout_ms,
+        profile: verdiInit.profile,
+        path: verdiInit.path,
+        maxBufferKb: verdiInit.max_buffer_kb
+    } : {
+            command: null, timeoutMs: 2000
+        }
+    )
 
     // register views
     const ComputerTreeInstance = ComputerTreeProvider.getInstance()
@@ -99,7 +110,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
                     timeoutMs: config.timeout_ms,
                     profile: config.profile,
                     path: config.path,
-                    maxBufferKb: config.max_buffer_kb} : {
+                    maxBufferKb: config.max_buffer_kb
+                } : {
                         command: null, timeoutMs: 2000
                     }
                 verdi.update()
