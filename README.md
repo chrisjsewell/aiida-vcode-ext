@@ -1,9 +1,14 @@
 # AiiDA VSCode Extension [IN DEVELOPMENT]
 
-A VSCode Extension for working with and exploring AiiDA repositories
+![Github-CI](https://github.com/chrisjsewell/aiida-vcode-ext/workflows/Github-CI/badge.svg)
 
-Require a postgres client (see https://www.compose.com/articles/postgresql-tips-installing-the-postgresql-client/)
+A VSCode Extension for working with and exploring [AiiDA](http://www.aiida.net/) repositories.
 
-https://axiomq.com/blog/backup-and-restore-a-postgresql-database
+<img width="500" alt="screenshot" src="https://raw.githubusercontent.com/chrisjsewell/aiida-vcode-ext/master/gifs/aiida-vscode-demo.gif">
 
-https://hub.docker.com/r/loomchild/volume-backup
+## Setup
+
+Require at least a postgres client to be running locally (see [her for example](https://www.compose.com/articles/postgresql-tips-installing-the-postgresql-client/)).
+Then a connection can be configured directly in the settings or using the setup helper:
+
+<img width="500" alt="screenshot" src="https://raw.githubusercontent.com/chrisjsewell/aiida-vcode-ext/master/gifs/aiida-vscode-setup.gif">
