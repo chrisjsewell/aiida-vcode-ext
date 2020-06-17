@@ -12,7 +12,7 @@ import { ComputerTreeProvider } from './computer_view'
 import { GroupTreeProvider } from './group_view'
 import { ProcessTreeProvider } from './process_view'
 import { MiscTreeProvider } from './settings_view'
-import { inspectComputer, inspectNode, inspectGroup, inspectProcess, inspectProcessLogs, inspectFile } from './inspect'
+import { inspectComputer, inspectNode, inspectGroup, inspectProcess, inspectProcessLogs, inspectFile, copyNodePk, copyProcessPk } from './inspect'
 import { Database } from './postgres'
 import { Verdi } from './verdi'
 import { setProfile } from './set_profile'
@@ -87,6 +87,8 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiida.inspectProcess', inspectProcess)
     vscode.commands.registerCommand('aiida.inspectProcessLogs', inspectProcessLogs)
     vscode.commands.registerCommand('aiida.inspectGroup', inspectGroup)
+    vscode.commands.registerCommand('aiida.copyNodePk', copyNodePk)
+    vscode.commands.registerCommand('aiida.copyProcessPk', copyProcessPk)
     vscode.commands.registerCommand('aiida.inspectFile', inspectFile)
 
     vscode.commands.registerCommand('aiida.setProfile', setProfile)

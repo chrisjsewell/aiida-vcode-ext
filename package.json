@@ -126,7 +126,15 @@
                     "when": "viewItem == node"
                 },
                 {
+                    "command": "aiida.copyNodePk",
+                    "when": "viewItem == node"
+                },
+                {
                     "command": "aiida.inspectProcess",
+                    "when": "viewItem == process"
+                },
+                {
+                    "command": "aiida.copyProcessPk",
                     "when": "viewItem == process"
                 },
                 {
@@ -150,7 +158,8 @@
         "commands": [
             {
                 "command": "aiida.refreshAll",
-                "title": "AiiDA: Refresh All",
+                "title": "Refresh All",
+                "category": "AiiDA",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -158,11 +167,13 @@
             },
             {
                 "command": "aiida.openInBrowser",
-                "title": "AiiDA: Home"
+                "title": "Open Home",
+                "category": "AiiDA"
             },
             {
                 "command": "aiidaComputerCodes.refreshEntry",
-                "title": "AiiDA: Refresh Codes",
+                "title": "Refresh",
+                "category": "AiiDA Codes",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -170,7 +181,8 @@
             },
             {
                 "command": "aiidaGroupNodes.refreshEntry",
-                "title": "AiiDA: Refresh Groups",
+                "title": "Refresh",
+                "category": "AiiDA Groups",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -178,7 +190,8 @@
             },
             {
                 "command": "aiidaProcess.refreshEntry",
-                "title": "AiiDA: Refresh Processes",
+                "title": "Refresh",
+                "category": "AiiDA Process",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -186,7 +199,8 @@
             },
             {
                 "command": "aiidaProcess.toggleGroupBy",
-                "title": "AiiDA: Toggle GroupBy",
+                "title": "Toggle GroupBy",
+                "category": "AiiDA Groups",
                 "icon": {
                     "light": "resources/light/tag.svg",
                     "dark": "resources/dark/tag.svg"
@@ -194,7 +208,8 @@
             },
             {
                 "command": "aiidaSettings.refreshEntry",
-                "title": "AiiDA: Refresh Settings",
+                "title": "Refresh Settings",
+                "category": "AiiDA Settings",
                 "icon": {
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
@@ -202,31 +217,48 @@
             },
             {
                 "command": "aiida.inspectComputer",
-                "title": "Inspect"
+                "title": "Inspect",
+                "category": "AiiDA Computer"
             },
             {
                 "command": "aiida.inspectNode",
-                "title": "Inspect"
+                "title": "Inspect",
+                "category": "AiiDA Node"
             },
             {
                 "command": "aiida.inspectProcess",
-                "title": "Inspect"
+                "title": "Inspect",
+                "category": "AiiDA Process"
             },
             {
                 "command": "aiida.inspectProcessLogs",
-                "title": "Logs"
+                "title": "Logs",
+                "category": "AiiDA Process"
             },
             {
                 "command": "aiida.inspectGroup",
-                "title": "Inspect"
+                "title": "Inspect",
+                "category": "AiiDA Groups"
             },
             {
                 "command": "aiida.inspectFile",
-                "title": "Open"
+                "title": "Open",
+                "category": "AiiDA"
+            },
+            {
+                "command": "aiida.copyNodePk",
+                "title": "Copy PK",
+                "category": "AiiDA Node"
+            },
+            {
+                "command": "aiida.copyProcessPk",
+                "title": "Copy PK",
+                "category": "AiiDA Process"
             },
             {
                 "command": "aiida.setProfile",
-                "title": "AiiDA: Setup Profile",
+                "title": "Setup Profile",
+                "category": "AiiDA",
                 "icon": {
                     "light": "resources/light/connect.svg",
                     "dark": "resources/dark/connect.svg"

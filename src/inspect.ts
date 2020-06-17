@@ -32,6 +32,11 @@ export async function inspectNode(item: items.NodeTreeItem) {
 }
 
 
+export async function copyNodePk(item: items.NodeTreeItem) {
+    await vscode.env.clipboard.writeText(`${item.pk}`)
+}
+
+
 export async function inspectProcess(item: items.ProcessTreeItem) {
     const db = Database.getInstance()
     const data = await db.queryNode(item.data.id)
@@ -41,6 +46,10 @@ export async function inspectProcess(item: items.ProcessTreeItem) {
     if (contentProvider) {
         await contentProvider.openReadOnlyContent({label: `process-${item.data.id}`, fullId: `aiida-process-${item.data.id}`}, content, '.yaml')
     }
+}
+
+export async function copyProcessPk(item: items.ProcessTreeItem) {
+    await vscode.env.clipboard.writeText(`${item.data.id}`)
 }
 
 
