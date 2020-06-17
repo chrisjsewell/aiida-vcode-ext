@@ -75,6 +75,9 @@ export class Database {
     public timeoutMs: number = 2000
     public queryMaxRecords: number = 10000
 
+    // number of row operations carried out on database
+    private rowOpCount: number = 0
+
     // here we make the database a singleton, so we can refer to it elsewhere
     private static instance: Database
     static getInstance(config: Configuration | undefined = undefined, timeoutMs: number | undefined = undefined): Database {
@@ -122,6 +125,21 @@ export class Database {
         return await this.runQuery(async (client) => {
             const row = await client.query('SELECT CURRENT_USER as user').one()
             return row.get('user')
+        })
+    }
+
+    async hasChanged(): Promise<any> {
+        return await this.runQuery(async (client) => {
+            const row = await client.query(
+                'select tup_inserted, tup_updated, tup_deleted from pg_stat_database'
+            ).one()
+            const values = row.data.map(v => {return v ? parseInt(v.toString()): 0})
+            const sum = values[0] + values[1] + values[2]
+            if (sum > this.rowOpCount) {
+                this.rowOpCount = sum
+                return true
+            }
+            return false
         })
     }
 

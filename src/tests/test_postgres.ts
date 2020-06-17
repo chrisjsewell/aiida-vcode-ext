@@ -24,6 +24,14 @@ test('connection', async t => {
     t.is(value, 'aiida')
 })
 
+test('has changed', async t => {
+    const db = t.context as Database
+    const value = await db.hasChanged()
+    t.is(value, true)
+    const value2 = await db.hasChanged()
+    t.is(value2, false)
+})
+
 
 test.serial('bad connection', async t => {
     const db = t.context as Database
