@@ -2,7 +2,7 @@
     "name": "aiida-explore-vscode",
     "displayName": "AiiDA-Explorer",
     "description": "VSCode extension for exploring an AiiDA repository",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "repository": {
         "type": "git",
         "url": "https://github.com/chrisjsewell/aiida-vcode-ext.git"
