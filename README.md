@@ -37,6 +37,12 @@ $ npm run lint:fix
 $ npm test
 ```
 
+Note, when powering down the docker environment, its best to also remove the volumes:
+
+```console
+$ docker-compose down -v
+```
+
 [vs-market-badge]: https://vsmarketplacebadge.apphb.com/version/chrisjsewell.aiida-explore-vscode.svg "Current Release"
 [vs-market-link]: https://marketplace.visualstudio.com/items?itemName=chrisjsewell.aiida-explore-vscode
 [github-ci-badge]: https://img.shields.io/github/workflow/status/chrisjsewell/aiida-vcode-ext/Github-CI?label=Github-CI

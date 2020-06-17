@@ -1,0 +1,41 @@
+version: '3.4'
+
+services:
+
+  database:
+    image: postgres:12.3
+    container_name: aiida-database
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432 # main port
+    volumes:
+      - "./postgres_db:/docker-entrypoint-initdb.d"
+      - "aiida-postgres-db:/var/lib/postgresql/data"
+    restart: always
+
+  core:
+    image: chrisjsewell/aiida-core:1.2.1
+    container_name: aiida-core
+    depends_on:
+      - database
+      - messaging
+    volumes:
+      - "./aiida_db:/etc/my_init.d"
+      - "aiida-object-store:/home/aiida/.aiida"
+
+  messaging:
+    image: rabbitmq:3.8.3-management
+    container_name: aiida-rmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - "aiida-rmq-data:/var/lib/rabbitmq/"
+    restart: always
+
+volumes:
+  aiida-postgres-db:
+  aiida-object-store:
+  aiida-rmq-data:

@@ -2,7 +2,7 @@
     "name": "aiida-explore-vscode",
     "displayName": "AiiDA-Explorer",
     "description": "VSCode extension for exploring an AiiDA repository",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "repository": {
         "type": "git",
         "url": "https://github.com/chrisjsewell/aiida-vcode-ext.git"
@@ -148,6 +148,18 @@
             ]
         },
         "commands": [
+            {
+                "command": "aiida.refreshAll",
+                "title": "AiiDA: Refresh All",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "aiida.openInBrowser",
+                "title": "AiiDA: Home"
+            },
             {
                 "command": "aiidaComputerCodes.refreshEntry",
                 "title": "AiiDA: Refresh Codes",

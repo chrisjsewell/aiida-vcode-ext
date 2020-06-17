@@ -34,10 +34,22 @@ export class MiscTreeProvider implements vscode.TreeDataProvider<vscode.TreeItem
     async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
 
         if (!element) {
-            const settings = new vscode.TreeItem('DB Settings', vscode.TreeItemCollapsibleState.Collapsed)
-            settings.iconPath = iconPath('settings')
+            const dbSettings = new vscode.TreeItem('DB Settings', vscode.TreeItemCollapsibleState.Collapsed)
+            dbSettings.iconPath = iconPath('database')
+            const refreshAll = new vscode.TreeItem('Refresh All', vscode.TreeItemCollapsibleState.None)
+            refreshAll.iconPath = iconPath('refresh')
+            refreshAll.command = {command: 'aiida.refreshAll', title: 'Refresh All'}
+            const openHome = new vscode.TreeItem('AiiDA Home', vscode.TreeItemCollapsibleState.None)
+            openHome.iconPath = iconPath('home')
+            openHome.command = {command: 'aiida.openInBrowser', title: 'AiiDA Home', tooltip: 'Open aiida.net', arguments: [vscode.Uri.parse('http://www.aiida.net/')]}
+            const openSettings = new vscode.TreeItem('Open Settings', vscode.TreeItemCollapsibleState.None)
+            openSettings.iconPath = iconPath('settings')
+            openSettings.command = {command: 'workbench.action.openSettings', title: 'AiiDA Settings', arguments: ['aiida']}
             return [
-                settings
+                refreshAll,
+                openSettings,
+                openHome,
+                dbSettings
             ]
         }
         if (element.label === 'DB Settings') {

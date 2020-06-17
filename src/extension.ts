@@ -76,6 +76,12 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiidaSettings.refreshEntry', () =>
         MiscTreeInstance.refresh()
     )
+    vscode.commands.registerCommand('aiida.refreshAll', () => {
+        ProcessTreeInstance.refresh()
+        ComputerTreeInstance.refresh()
+        GroupTreeInstance.refresh()
+        MiscTreeInstance.refresh()
+    })
     vscode.commands.registerCommand('aiida.inspectComputer', inspectComputer)
     vscode.commands.registerCommand('aiida.inspectNode', inspectNode)
     vscode.commands.registerCommand('aiida.inspectProcess', inspectProcess)
@@ -84,6 +90,15 @@ export function activate(ctx: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiida.inspectFile', inspectFile)
 
     vscode.commands.registerCommand('aiida.setProfile', setProfile)
+
+    ctx.subscriptions.push(
+        vscode.commands.registerCommand(
+            'aiida.openInBrowser',
+            async (uri: vscode.Uri) => {
+                await vscode.env.openExternal(uri)
+            }
+        )
+    )
 
     // register configuration change callback
     ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(
