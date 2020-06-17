@@ -1,6 +1,6 @@
 'use strict'
 import * as vscode from 'vscode'
-import * as lodash from 'lodash'
+import { sortBy, uniqBy, values } from 'lodash'
 
 import * as postgres from './postgres'
 import { Verdi } from './verdi'
@@ -58,7 +58,7 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
 
             if (this.groupBy[this.groupByIndex] === 'icon') {
                 const topLevel: AiidaTreeItem[] = []
-                for (const {icon} of lodash.uniqBy(lodash.values(this.processes), 'icon')) {
+                for (const {icon} of uniqBy(values(this.processes), 'icon')) {
                     const groupTypeItem = new AiidaTreeItem(icon.replace('status', ''), icon, vscode.TreeItemCollapsibleState.Collapsed)
                     groupTypeItem.levelName = 'top'
                     topLevel.push(groupTypeItem)
@@ -68,7 +68,7 @@ export class ProcessTreeProvider implements vscode.TreeDataProvider<AiidaTreeIte
 
             if (this.groupBy[this.groupByIndex] === 'process') {
                 const topLevel: AiidaTreeItem[] = []
-                for (const {processType} of lodash.uniqBy(lodash.values(this.processes), 'processType')) {
+                for (const {processType} of sortBy(uniqBy(values(this.processes), 'processType'), ['processType'])) {
                     const groupTypeItem = new AiidaTreeItem(processType, undefined, vscode.TreeItemCollapsibleState.Collapsed)
                     groupTypeItem.levelName = 'top'
                     topLevel.push(groupTypeItem)
