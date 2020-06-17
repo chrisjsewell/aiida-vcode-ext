@@ -9,7 +9,7 @@ A VSCode Extension for working with and exploring [AiiDA](http://www.aiida.net/)
 
 ## Setup
 
-Require at least a postgres client to be running locally (see [her for example](https://www.compose.com/articles/postgresql-tips-installing-the-postgresql-client/)).
+The extension requires at least a PostgreSQL client to be running locally (see [here for example](https://www.compose.com/articles/postgresql-tips-installing-the-postgresql-client/)), that can connect to a database running on an open port (usually 5432).
 Then a connection can be configured directly in the settings or using the setup helper:
 
 <img width="500" alt="screenshot" src="https://raw.githubusercontent.com/chrisjsewell/aiida-vcode-ext/master/gifs/aiida-vscode-setup.gif">
