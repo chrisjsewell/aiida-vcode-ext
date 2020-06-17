@@ -20,6 +20,7 @@ const nodeIconMatches: { type: string, iconName: string }[] = [
     { type: 'data.folder', iconName: 'archive' },
     { type: 'data.structure', iconName: 'beaker' },
     { type: 'data', iconName: 'graph' },
+    { type: 'process.calculation', iconName: 'calculator' },
     { type: 'process', iconName: 'rocket' }
 ]
 
